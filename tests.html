@@ -67,6 +67,90 @@
       assertEqual(formatScore(0.5 + 1 + 0.5), "2");
     });
 
+    function makeItem(overrides) {
+      return Object.assign({
+        question: "문제",
+        choices: ["가", "나", "다", "라"],
+        answer: 0,
+        explanation: "해설이다.",
+        source: "출처",
+      }, overrides);
+    }
+
+    function makeData() {
+      const categories = [
+        { id: "a", name: "A" }, { id: "b", name: "B" },
+        { id: "c", name: "C" }, { id: "d", name: "D" },
+      ];
+      const questions = {};
+      for (const category of categories) {
+        questions[category.id] = Array.from({ length: 10 }, () => makeItem({}));
+      }
+      return { categories, questions };
+    }
+
+    test("validateQuestions: 올바른 데이터는 오류가 없다", () => {
+      const { categories, questions } = makeData();
+      assertEqual(validateQuestions(categories, questions), []);
+    });
+
+    test("validateQuestions: 카테고리가 4개가 아니면 오류", () => {
+      const { categories, questions } = makeData();
+      assertIncludes(validateQuestions(categories.slice(0, 3), questions), "카테고리가 4개가 아닙니다(3개).");
+    });
+
+    test("validateQuestions: 카테고리의 문항 배열이 없으면 오류", () => {
+      const { categories, questions } = makeData();
+      delete questions.b;
+      assertIncludes(validateQuestions(categories, questions), "b: 문항 배열이 없습니다.");
+    });
+
+    test("validateQuestions: 문항이 10개가 아니면 오류", () => {
+      const { categories, questions } = makeData();
+      questions.a.pop();
+      assertIncludes(validateQuestions(categories, questions), "a: 문항이 10개가 아닙니다(9개).");
+    });
+
+    test("validateQuestions: 문제, 해설, 출처가 비어 있으면 오류", () => {
+      const { categories, questions } = makeData();
+      questions.a[0] = makeItem({ question: "", explanation: " ", source: "" });
+      const errors = validateQuestions(categories, questions);
+      assertIncludes(errors, "a 1번: question 값이 비어 있습니다.");
+      assertIncludes(errors, "a 1번: explanation 값이 비어 있습니다.");
+      assertIncludes(errors, "a 1번: source 값이 비어 있습니다.");
+    });
+
+    test("validateQuestions: 보기가 4개가 아니면 오류", () => {
+      const { categories, questions } = makeData();
+      questions.a[0] = makeItem({ choices: ["가", "나", "다"] });
+      assertIncludes(validateQuestions(categories, questions), "a 1번: 보기가 4개가 아닙니다.");
+    });
+
+    test("validateQuestions: 비어 있는 보기가 있으면 오류", () => {
+      const { categories, questions } = makeData();
+      questions.a[0] = makeItem({ choices: ["가", "나", "다", " "] });
+      assertIncludes(validateQuestions(categories, questions), "a 1번: 비어 있는 보기가 있습니다.");
+    });
+
+    test("validateQuestions: 보기가 중복되면 오류", () => {
+      const { categories, questions } = makeData();
+      questions.a[0] = makeItem({ choices: ["가", "나", "다", "가"] });
+      assertIncludes(validateQuestions(categories, questions), "a 1번: 중복된 보기가 있습니다.");
+    });
+
+    test("validateQuestions: answer가 0~3의 정수가 아니면 오류", () => {
+      const { categories, questions } = makeData();
+      questions.a[0] = makeItem({ answer: 4 });
+      questions.a[1] = makeItem({ answer: 1.5 });
+      const errors = validateQuestions(categories, questions);
+      assertIncludes(errors, "a 1번: answer가 0~3의 정수가 아닙니다.");
+      assertIncludes(errors, "a 2번: answer가 0~3의 정수가 아닙니다.");
+    });
+
+    test("실제 문항 데이터가 형식 규칙을 지킨다", () => {
+      assertEqual(validateQuestions(CATEGORIES, QUESTIONS), []);
+    });
+
     // ===== 테스트 끝 =====
 
     document.getElementById("summary").textContent =
