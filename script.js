@@ -145,6 +145,7 @@ function showStart() {
 }
 
 function startGame(mode, categoryId) {
+  stopTimer();
   state.mode = mode;
   state.categoryId = categoryId;
   state.queue = QUESTIONS[categoryId].map((_, i) => i);
@@ -182,9 +183,16 @@ function showQuestion() {
   feedback.id = "feedback";
 
   render(status, el("h2", item.question, "question"), choices, feedback);
+  if (state.mode === "speed") {
+    const timer = el("p", undefined, "timer");
+    timer.id = "timer";
+    status.after(timer);
+    startTimer();
+  }
 }
 
 function handleAnswer(choiceIndex) {
+  stopTimer();
   const item = currentQuestion();
   const isCorrect = choiceIndex === item.answer;
   state.score += scoreFor(isCorrect, state.hintUsed);
@@ -199,7 +207,9 @@ function handleAnswer(choiceIndex) {
     else if (index === choiceIndex) node.classList.add("wrong");
   }
 
-  const message = isCorrect ? "정답입니다." : "오답입니다.";
+  let message = "오답입니다.";
+  if (isCorrect) message = "정답입니다.";
+  else if (choiceIndex === null) message = "시간 초과입니다.";
   const isLast = state.position === state.queue.length - 1;
   document.getElementById("feedback").append(
     el("p", message, isCorrect ? "result-correct" : "result-wrong"),
@@ -207,6 +217,28 @@ function handleAnswer(choiceIndex) {
     sourceLine(item),
     button(isLast ? "결과 보기" : "다음", nextQuestion),
   );
+}
+
+const TIME_LIMIT = 15;
+
+function startTimer() {
+  stopTimer();
+  state.remaining = TIME_LIMIT;
+  updateTimer();
+  state.timerId = setInterval(() => {
+    state.remaining--;
+    updateTimer();
+    if (state.remaining === 0) handleAnswer(null);
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(state.timerId);
+  state.timerId = null;
+}
+
+function updateTimer() {
+  document.getElementById("timer").textContent = `남은 시간 ${state.remaining}초`;
 }
 
 function nextQuestion() {
@@ -226,7 +258,7 @@ function reviewList() {
     const row = el("li", undefined, isCorrect ? "review-correct" : "review-wrong");
     const question = el("p", undefined, "review-question");
     question.append(el("span", isCorrect ? "✔" : "✘", "review-mark"), ` ${answer.index + 1}. ${item.question}`);
-    const myAnswer = item.choices[answer.choiceIndex];
+    const myAnswer = answer.choiceIndex === null ? "시간 초과" : item.choices[answer.choiceIndex];
     let detail = `내 답: ${myAnswer}`;
     if (!isCorrect) detail += `, 정답: ${item.choices[item.answer]}`;
     row.append(question, el("p", detail, "review-detail"));
@@ -236,6 +268,7 @@ function reviewList() {
 }
 
 function showResult() {
+  stopTimer();
   const total = state.queue.length;
   render(
     el("h1", "결과"),

@@ -137,3 +137,8 @@ button:disabled {
   background: #222;
   color: #fff;
 }
+
+.timer {
+  font-size: 20px;
+  font-weight: bold;
+}
