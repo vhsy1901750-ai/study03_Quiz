@@ -1,0 +1,76 @@
+<!-- 생성: 2026-10-07 22:53 KST -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>퀴즈 테스트</title>
+  <style>
+    body { font-family: system-ui, sans-serif; padding: 16px; }
+    .pass { color: #2e7d32; }
+    .fail { color: #c62828; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>퀴즈 테스트</h1>
+  <p id="summary"></p>
+  <ul id="results"></ul>
+
+  <script src="questions.js"></script>
+  <script src="script.js"></script>
+  <script>
+    const results = document.getElementById("results");
+    let failed = 0;
+
+    function test(name, fn) {
+      const li = document.createElement("li");
+      try {
+        fn();
+        li.textContent = "통과: " + name;
+        li.className = "pass";
+      } catch (error) {
+        failed++;
+        li.textContent = "실패: " + name + " (" + error.message + ")";
+        li.className = "fail";
+      }
+      results.appendChild(li);
+    }
+
+    function assertEqual(actual, expected) {
+      const a = JSON.stringify(actual);
+      const b = JSON.stringify(expected);
+      if (a !== b) throw new Error("기대값 " + b + ", 실제값 " + a);
+    }
+
+    function assertIncludes(list, item) {
+      if (!list.includes(item)) {
+        throw new Error("목록에 " + JSON.stringify(item) + "이(가) 없음. 실제 목록 " + JSON.stringify(list));
+      }
+    }
+
+    test("scoreFor: 오답이면 0점", () => {
+      assertEqual(scoreFor(false, false), 0);
+      assertEqual(scoreFor(false, true), 0);
+    });
+
+    test("scoreFor: 힌트 없이 맞히면 1점", () => {
+      assertEqual(scoreFor(true, false), 1);
+    });
+
+    test("scoreFor: 힌트를 쓰고 맞히면 0.5점", () => {
+      assertEqual(scoreFor(true, true), 0.5);
+    });
+
+    test("formatScore: 정수는 정수로, 0.5 단위는 소수 한 자리로", () => {
+      assertEqual(formatScore(0), "0");
+      assertEqual(formatScore(7), "7");
+      assertEqual(formatScore(7.5), "7.5");
+      assertEqual(formatScore(0.5 + 1 + 0.5), "2");
+    });
+
+    // ===== 테스트 끝 =====
+
+    document.getElementById("summary").textContent =
+      failed === 0 ? "전부 통과" : failed + "개 실패";
+  </script>
+</body>
+</html>
