@@ -4,7 +4,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 서버 없이 브라우저에서 파일을 열어 푸는 4지선다 상식 퀴즈(카테고리 4개, 카테고리마다 10문제)를 연습, 스피드, 힌트 모드와 localStorage 순위표까지 3단계로 만든다.
+**Goal:** 서버 없이 브라우저에서 파일을 열어 푸는 4지선다 상식 퀴즈(카테고리 4개, 카테고리마다 같은 수의 문제)를 연습, 스피드, 힌트 모드와 localStorage 순위표까지 3단계로 만든다.
 
 **Architecture:** `script.js`를 순수 함수, 상태 객체, 화면 함수의 세 덩어리로 나눈다. 순수 함수는 개발용 `tests.html`을 브라우저로 열어 검사하고, 화면 동작은 단계마다 브라우저 확인 항목으로 사람이 확인한다. 화면은 `#app` 요소 안을 통째로 다시 그리는 방식이며, DOM은 `createElement`와 `textContent`로만 만든다(사용자가 입력한 이름을 안전하게 표시하기 위해 `innerHTML`을 쓰지 않는다).
 
@@ -16,7 +16,7 @@
 
 - 앱 파일은 `index.html`, `style.css`, `script.js`, `questions.js` 4개다. `tests.html`은 개발용이며 앱에 포함하지 않는다.
 - `index.html`을 더블클릭해 `file://`로 열었을 때 동작해야 한다. `fetch`, ES 모듈(`type="module"`), 외부 CDN을 쓰지 않는다.
-- 카테고리는 4개(한국사, 세계지리, 과학, 예술과 문화)이고, 카테고리마다 10문제다.
+- 카테고리는 4개(한국사, 세계지리, 과학, 예술과 문화)이고, 카테고리마다 문항 수가 같다. 처음에는 카테고리마다 10문제로 만들었다(Task 3~6).
 - 문항 규칙: (1) 문항마다 정답은 하나만이어야 한다. (2) 해설에는 확인한 출처를 명시해야 한다. (3) "가장 ~한"처럼 최상급 표현이 사용된 문항은 기준과 시점을 문제에 명시해야 한다.
 - 틀린 문항은 모든 모드에서 0점이다. 연습과 스피드는 맞히면 1점, 힌트는 힌트를 쓰고 맞히면 0.5점, 쓰지 않고 맞히면 1점이다.
 - 문제 순서와 보기 순서는 고정한다. 섞지 않는다.
@@ -2233,3 +2233,29 @@ git commit -m "feat: 자체 점검 16~21"
 - [ ] **Step 2: 3단계 브라우저 확인 항목** — 사용자가 전부 직접 해 보고 체크한다.
 - [ ] **Step 3: 1, 2단계 브라우저 확인 항목 다시 확인** — 특히 연습 결과 화면에 저장 폼이 없고, 스피드 타이머가 저장이나 순위표 이동 뒤에도 남아 있지 않은지 본다.
 - [ ] **Step 4: 마무리 확인** — 앱 파일이 `index.html`, `style.css`, `script.js`, `questions.js` 4개이고, 그 밖에는 개발용 `tests.html`과 문서(`PRD.md`, `IMPL-PLAN.md`)만 있는지 확인한다. 사용자에게 완료를 보고한다.
+
+---
+
+### Task 17-1: 문항 수 규정 변경 (3단계 뒤 사용자 요청으로 추가)
+
+문항을 추가할 수 있도록 "카테고리마다 10문항"을 "카테고리마다 문항 수가 같다"로 바꾼다. 위 Task 1~17의 "10문제", "40문항", `validateQuestions` 코드는 그때의 기록이므로 그대로 둔다.
+
+**Files:**
+- Modify: `script.js` (`validateQuestions`의 문항 수 검사, 자체 점검의 기대값)
+- Modify: `tests.html` (문항 수 테스트)
+- Modify: `PRD.md` (1.1, 2.1, 3.1~3.3, 4.1, 4.3, 6.1, 7.2.1, 7.2.2, 7.3), `IMPL-PLAN.md` (Goal, Global Constraints, 이 Task)
+
+**변경:**
+- `validateQuestions`는 "카테고리마다 10개" 대신 "카테고리끼리 문항 수가 같다"를 검사한다. 다르면 `카테고리마다 문항 수가 같지 않습니다(history 10개, geography 9개, ...).` 하나를 돌려준다.
+- `tests.html`: "문항이 10개가 아니면 오류"를 "카테고리마다 문항 수가 다르면 오류"로 바꾸고, "카테고리마다 문항 수가 같으면 10개가 아니어도 오류가 없다"를 더한다.
+- 자체 점검 4, 9~12, 14, 15, 18번은 "1 / 10", "7 / 10", "8점"처럼 고정된 값 대신 `QUESTIONS[카테고리].length`로 기대값을 계산한다. 점검이 2, 5, 9번을 틀리므로 카테고리마다 9문항 이상이어야 한다.
+- 문서의 "/ 10" 예시는 지우지 않고 "한 판이 10문항이면 7.5 / 10"처럼 전제를 밝힌다.
+
+- [x] **Step 1: 자동 검사** — `tests.html`을 연다. Expected: "전부 통과". `index.html?test`를 연다. Expected: `자체 점검 결과: 통과 21, 실패 0`.
+- [x] **Step 2: 문항이 늘어도 통과하는지 확인** — `index.html`을 열고 콘솔에서 카테고리마다 문항을 하나씩 늘린 뒤(`for (const c of CATEGORIES) QUESTIONS[c.id].push({ ...QUESTIONS[c.id][0], question: "추가 " + c.id })`) `runSelfCheck()`. Expected: `통과 21, 실패 0`. 한 카테고리에만 늘리면 1번만 실패한다. 확인 뒤 새로고침한다.
+- [x] **Step 3: 커밋**
+
+```bash
+git add script.js tests.html PRD.md IMPL-PLAN.md
+git commit -m "feat: 문항 수 규정을 카테고리마다 같은 수로 변경"
+```
