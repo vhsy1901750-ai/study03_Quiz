@@ -65,6 +65,7 @@ const state = {
   position: 0,
   score: 0,
   wrongIndices: [],
+  answers: [],
   hintUsed: false,
   isRetry: false,
   retryCorrect: 0,
@@ -133,6 +134,7 @@ function startGame(mode, categoryId) {
   state.position = 0;
   state.score = 0;
   state.wrongIndices = [];
+  state.answers = [];
   state.isRetry = false;
   state.retryCorrect = 0;
   showQuestion();
@@ -171,6 +173,7 @@ function handleAnswer(choiceIndex) {
   state.score += scoreFor(isCorrect, state.hintUsed);
   document.getElementById("score").textContent = `점수 ${formatScore(state.score)}`;
   if (!isCorrect) state.wrongIndices.push(state.queue[state.position]);
+  state.answers.push({ index: state.queue[state.position], choiceIndex, usedHint: state.hintUsed });
 
   for (const node of app.querySelectorAll(".choice")) {
     node.disabled = true;
@@ -198,6 +201,23 @@ function nextQuestion() {
   showQuestion();
 }
 
+function reviewList() {
+  const list = el("ul", undefined, "review");
+  for (const answer of state.answers) {
+    const item = QUESTIONS[state.categoryId][answer.index];
+    const isCorrect = answer.choiceIndex === item.answer;
+    const row = el("li", undefined, isCorrect ? "review-correct" : "review-wrong");
+    const question = el("p", undefined, "review-question");
+    question.append(el("span", isCorrect ? "✔" : "✘", "review-mark"), ` ${answer.index + 1}. ${item.question}`);
+    const myAnswer = item.choices[answer.choiceIndex];
+    let detail = `내 답: ${myAnswer}`;
+    if (!isCorrect) detail += `, 정답: ${item.choices[item.answer]}`;
+    row.append(question, el("p", detail, "review-detail"));
+    list.append(row);
+  }
+  return list;
+}
+
 function showResult() {
   const total = state.queue.length;
   render(
@@ -206,6 +226,8 @@ function showResult() {
     el("p", `${formatScore(state.score)} / ${total}`, "final-score"),
     el("p", `맞힌 문항 ${total - state.wrongIndices.length}개`),
     el("p", NOT_RECORDED, "notice"),
+    el("h2", "문항별 결과"),
+    reviewList(),
     button("처음으로", showStart),
   );
 }

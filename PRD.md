@@ -97,6 +97,8 @@
 ### 3.3 결과 화면
 
 - 점수(예: 7.5 / 10)와 맞힌 문항 수를 보여 준다.
+- 그 아래 "문항별 결과" 목록에 이번 판에서 푼 문항을 순서대로 보여 준다. 문항마다 맞힘(초록 ✔) 또는 틀림(빨강 ✘), 문항 번호와 문제, "내 답"을 보여 주고, 틀린 문항에는 "정답"을 덧붙인다. 시간 초과는 내 답을 "시간 초과"로, 힌트를 쓰고 맞힌 문항은 "(힌트 사용, 0.5점)"으로 표시한다. 해설과 출처는 다시 보여 주지 않는다.
+- 다시 풀기 결과의 목록에는 다시 푼 문항만 보여 준다.
 - 연습 모드: "순위표에 기록되지 않음"을 표시한다. 틀린 문제가 있으면 [틀린 문제 다시 풀기] 버튼을 보여 준다(2단계부터).
 - 스피드, 힌트 모드: 이름 입력칸과 [순위표에 저장] 버튼을 보여 준다(3단계부터). 다시 풀기 버튼은 없다.
 - 저장하면 저장 버튼을 끄고, 그 모드와 카테고리의 순위표 화면으로 이동한다.
@@ -198,6 +200,7 @@ state = {
   position,      // queue 안의 현재 위치
   score,         // 처음 풀이의 점수
   wrongIndices,  // 이번 풀이에서 틀린 문항 번호
+  answers,       // 이번 풀이의 답 기록 [{ index, choiceIndex, usedHint }] (choiceIndex가 null이면 시간 초과)
   hintUsed,      // 현재 문항에서 힌트를 썼는지
   isRetry,       // 다시 풀기 중인지
   retryCorrect,  // 다시 풀기 정답 수
@@ -208,10 +211,10 @@ state = {
 
 ### 5.3 화면 함수
 
-`showStart`, `startGame(mode, categoryId)`, `showQuestion`, `handleAnswer(choiceIndex)`(시간 초과면 `null`), `useHint`, `startTimer`, `stopTimer`, `showResult`, `startRetry`, `saveRecord`, `showLeaderboard`
+`showStart`, `startGame(mode, categoryId)`, `showQuestion`, `handleAnswer(choiceIndex)`(시간 초과면 `null`), `useHint`, `startTimer`, `stopTimer`, `showResult`, `reviewList`(문항별 결과 목록), `startRetry`, `saveRecord`, `showLeaderboard`
 
 - 타이머는 1초마다 `remaining`을 줄이고, 0이 되면 `handleAnswer(null)`을 부른다. 해설이 나올 때, 결과 화면으로 갈 때, 새 판을 시작할 때 반드시 `stopTimer`로 이전 타이머를 멈춘다.
-- 다시 풀기는 `queue`를 `wrongIndices`로 바꾸고 `isRetry = true`로 둔다. 이때 `score`는 바꾸지 않고 `retryCorrect`만 센다.
+- 다시 풀기는 `queue`를 `wrongIndices`로 바꾸고 `isRetry = true`로 둔다. 이때 `score`는 바꾸지 않고 `retryCorrect`만 센다. `answers`는 비우고 다시 푼 문항만 기록한다.
 - localStorage 읽기와 쓰기는 `try/catch`로 감싸고, 실패하면 2.5의 실패 메시지를 표시한다.
 - `script.js`는 `#app` 요소가 있을 때만 화면을 시작한다. 그래서 `tests.html`에서 불러와도 앱 화면이 뜨지 않는다.
 
@@ -281,6 +284,7 @@ state = {
 - [ ] 답을 고른 뒤 다른 보기를 눌러도 아무 변화가 없다.
 - [ ] 맞혔을 때와 틀렸을 때 모두 해설 한 줄과 출처 링크가 나오고, 출처 링크를 누르면 새 탭에서 해당 페이지가 열린다. 퀴즈 화면은 그대로 남는다.
 - [ ] 10번째 문항에서 [결과 보기]를 누르면 "x / 10"과 "순위표에 기록되지 않음"이 나온다.
+- [ ] 결과 화면의 "문항별 결과"에 10문항이 순서대로 나오고, 맞힌 문항은 초록 ✔와 내 답, 틀린 문항은 빨강 ✘와 내 답, 정답이 나온다.
 - [ ] [처음으로]를 누른 뒤 나머지 카테고리 3개도 각각 10문제가 정상으로 나온다.
 
 #### 7.2.2 2단계

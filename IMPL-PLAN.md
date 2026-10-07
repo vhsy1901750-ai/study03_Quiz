@@ -61,6 +61,7 @@
 - [ ] 답을 고른 뒤 다른 보기를 눌러도 아무 변화가 없다.
 - [ ] 맞혔을 때와 틀렸을 때 모두 해설 한 줄과 출처 링크가 나오고, 출처 링크를 누르면 새 탭에서 해당 페이지가 열린다. 퀴즈 화면은 그대로 남는다.
 - [ ] 10번째 문항에서 [결과 보기]를 누르면 "x / 10"과 "순위표에 기록되지 않음"이 나온다.
+- [ ] 결과 화면의 "문항별 결과"에 10문항이 순서대로 나오고, 맞힌 문항은 초록 ✔와 내 답, 틀린 문항은 빨강 ✘와 내 답, 정답이 나온다.
 - [ ] [처음으로]를 누른 뒤 나머지 카테고리 3개도 각각 10문제가 정상으로 나온다.
 
 ---
@@ -1076,6 +1077,134 @@ git commit -m "feat: 해설 아래 출처를 새 탭 링크로 표시"
 
 ---
 
+### Task 7-2: 결과 화면의 문항별 결과 목록 (1단계 진행 중 사용자 요청으로 추가)
+
+**Files:**
+- Modify: `script.js` (`state`에 `answers` 추가, `startGame`, `handleAnswer` 수정, `reviewList` 추가, `showResult` 수정)
+- Modify: `style.css` (끝에 추가)
+
+**Interfaces:**
+- Consumes: `state`, `el`, `QUESTIONS`(Task 7)
+- Produces:
+  - `state.answers: { index: number, choiceIndex: number | null, usedHint: boolean }[]` — 이번 풀이에서 문항마다 고른 답. `choiceIndex`가 `null`이면 시간 초과(2단계)
+  - `reviewList(): HTMLUListElement` — "문항별 결과" 목록. 각 항목은 클래스 `review-correct` 또는 `review-wrong`, 표시 `review-mark`(✔ 또는 ✘)
+  - 2단계 Task 10, 11, 12가 `reviewList`의 `myAnswer`, `detail` 줄과 `state.answers` 초기화를 고친다.
+
+이 작업은 DOM을 다루므로 브라우저에서 확인한다.
+
+- [ ] **Step 1: 답 기록 추가**
+
+`state` 객체에서 `wrongIndices: [],` 다음 줄에 추가한다.
+
+```js
+  answers: [],
+```
+
+`startGame`에서 `state.wrongIndices = [];` 다음 줄에 추가한다.
+
+```js
+  state.answers = [];
+```
+
+`handleAnswer`에서 `if (!isCorrect) state.wrongIndices.push(state.queue[state.position]);` 다음 줄에 추가한다.
+
+```js
+  state.answers.push({ index: state.queue[state.position], choiceIndex, usedHint: state.hintUsed });
+```
+
+- [ ] **Step 2: `reviewList` 추가와 결과 화면 수정**
+
+`showResult` 함수 바로 위에 추가한다.
+
+```js
+function reviewList() {
+  const list = el("ul", undefined, "review");
+  for (const answer of state.answers) {
+    const item = QUESTIONS[state.categoryId][answer.index];
+    const isCorrect = answer.choiceIndex === item.answer;
+    const row = el("li", undefined, isCorrect ? "review-correct" : "review-wrong");
+    const question = el("p", undefined, "review-question");
+    question.append(el("span", isCorrect ? "✔" : "✘", "review-mark"), ` ${answer.index + 1}. ${item.question}`);
+    const myAnswer = item.choices[answer.choiceIndex];
+    let detail = `내 답: ${myAnswer}`;
+    if (!isCorrect) detail += `, 정답: ${item.choices[item.answer]}`;
+    row.append(question, el("p", detail, "review-detail"));
+    list.append(row);
+  }
+  return list;
+}
+```
+
+`showResult`의 `render( ... )` 안에서 `el("p", NOT_RECORDED, "notice"),` 다음 줄에 추가한다.
+
+```js
+    el("h2", "문항별 결과"),
+    reviewList(),
+```
+
+문항 번호는 목록 순서가 아니라 원래 문항 번호(`answer.index + 1`)를 쓴다. 그래서 다시 풀기(2단계)에서도 몇 번 문항이었는지 알 수 있다.
+
+- [ ] **Step 3: 스타일 추가**
+
+`style.css` 끝에 추가한다.
+
+```css
+.review {
+  display: grid;
+  gap: 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.review li {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-left: 4px solid;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.review-correct {
+  border-left-color: #2e7d32;
+}
+
+.review-wrong {
+  border-left-color: #c62828;
+}
+
+.review-correct .review-mark {
+  color: #2e7d32;
+}
+
+.review-wrong .review-mark {
+  color: #c62828;
+}
+
+.review-question {
+  margin: 0 0 4px;
+  font-weight: bold;
+}
+
+.review-detail {
+  margin: 0;
+  color: #555;
+  font-size: 14px;
+}
+```
+
+- [ ] **Step 4: 브라우저 확인**
+
+`index.html`을 열고 한 카테고리에서 2, 5, 9번을 일부러 틀린다. Expected: 결과가 "7 / 10"이고, "문항별 결과"에 10개 항목이 나오며, 2, 5, 9번만 빨강 ✘와 "내 답: …, 정답: …", 나머지는 초록 ✔와 "내 답: …"이다. [처음으로]로 다른 카테고리를 풀면 목록이 그 카테고리의 10문항으로 바뀐다. `tests.html`은 여전히 "전부 통과"다.
+
+- [ ] **Step 5: 커밋**
+
+```bash
+git add script.js style.css PRD.md IMPL-PLAN.md
+git commit -m "feat: 결과 화면에 문항별 결과 목록 추가"
+```
+
+---
+
 ### Task 8: 1단계 완료 확인
 
 **Files:** 없음(확인만 한다. 문제가 나오면 해당 Task로 돌아가 고친다)
@@ -1086,7 +1215,7 @@ git commit -m "feat: 해설 아래 출처를 새 탭 링크로 표시"
 
 - [ ] **Step 2: 브라우저 확인 항목**
 
-1단계의 "브라우저에서 직접 확인할 항목" 9개를 사용자가 직접 해 보고 체크한다. 카테고리 4개 모두 끝까지 풀어 본다.
+1단계의 "브라우저에서 직접 확인할 항목" 10개를 사용자가 직접 해 보고 체크한다. 카테고리 4개 모두 끝까지 풀어 본다.
 
 - [ ] **Step 3: 문항 검토 완료 확인**
 
@@ -1315,6 +1444,18 @@ function updateTimer() {
 
 `choiceIndex`가 `null`이면 `isCorrect`는 `false`이므로 점수는 0점이 더해지고, 문항은 `wrongIndices`에 들어가며, 정답 보기만 초록으로 표시된다.
 
+결과 목록(Task 7-2)에서도 시간 초과를 표시한다. `reviewList` 함수에서 이 줄을
+
+```js
+    const myAnswer = item.choices[answer.choiceIndex];
+```
+
+아래로 바꾼다.
+
+```js
+    const myAnswer = answer.choiceIndex === null ? "시간 초과" : item.choices[answer.choiceIndex];
+```
+
 - [ ] **Step 5: 스타일 추가**
 
 `style.css` 끝에 추가한다.
@@ -1442,6 +1583,12 @@ function useHint() {
 
 답을 고른 뒤에는 힌트를 누를 수 없다. `showQuestion`이 `state.hintUsed = false`로 시작하므로 다음 문항에서는 힌트를 다시 쓸 수 있다.
 
+결과 목록(Task 7-2)에 힌트 사용을 표시한다. `reviewList` 함수에서 `let detail = ...;` 줄 바로 아래에 추가한다.
+
+```js
+    if (isCorrect && answer.usedHint) detail += " (힌트 사용, 0.5점)";
+```
+
 - [ ] **Step 6: 스타일 추가**
 
 `style.css` 끝에 추가한다.
@@ -1484,6 +1631,7 @@ git commit -m "feat: 힌트 모드 추가"
 function startRetry() {
   state.queue = state.wrongIndices;
   state.wrongIndices = [];
+  state.answers = [];
   state.position = 0;
   state.isRetry = true;
   state.retryCorrect = 0;
@@ -1549,16 +1697,17 @@ function showResult() {
       el("p", `맞힌 문항 ${fullCount - state.wrongIndices.length}개`),
     );
   }
-  if (state.mode === "practice") {
-    nodes.push(el("p", NOT_RECORDED, "notice"));
-    if (state.wrongIndices.length > 0) {
-      nodes.push(button("틀린 문제 다시 풀기", startRetry));
-    }
+  if (state.mode === "practice") nodes.push(el("p", NOT_RECORDED, "notice"));
+  nodes.push(el("h2", "문항별 결과"), reviewList());
+  if (state.mode === "practice" && state.wrongIndices.length > 0) {
+    nodes.push(button("틀린 문제 다시 풀기", startRetry));
   }
   nodes.push(button("처음으로", showStart));
   render(...nodes);
 }
 ```
+
+`startRetry`가 `state.answers`를 비우므로, 다시 풀기 결과의 목록에는 다시 푼 문항만 원래 문항 번호와 함께 나온다.
 
 - [ ] **Step 5: 브라우저 확인**
 

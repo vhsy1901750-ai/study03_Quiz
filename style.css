@@ -83,3 +83,45 @@ button:disabled {
   font-size: 32px;
   font-weight: bold;
 }
+
+.review {
+  display: grid;
+  gap: 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.review li {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-left: 4px solid;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.review-correct {
+  border-left-color: #2e7d32;
+}
+
+.review-wrong {
+  border-left-color: #c62828;
+}
+
+.review-correct .review-mark {
+  color: #2e7d32;
+}
+
+.review-wrong .review-mark {
+  color: #c62828;
+}
+
+.review-question {
+  margin: 0 0 4px;
+  font-weight: bold;
+}
+
+.review-detail {
+  margin: 0;
+  color: #555;
+  font-size: 14px;
+}
