@@ -175,7 +175,7 @@ function showQuestion() {
     el("span", categoryName(state.categoryId)),
     el("span", MODE_NAMES[state.mode]),
     el("span", `${state.position + 1} / ${state.queue.length}`),
-    scoreNode,
+    state.isRetry ? el("span", "다시 풀기", "retry-label") : scoreNode,
   );
 
   const choices = el("div", undefined, "choices");
@@ -206,8 +206,12 @@ function handleAnswer(choiceIndex) {
   stopTimer();
   const item = currentQuestion();
   const isCorrect = choiceIndex === item.answer;
-  state.score += scoreFor(isCorrect, state.hintUsed);
-  document.getElementById("score").textContent = `점수 ${formatScore(state.score)}`;
+  if (state.isRetry) {
+    if (isCorrect) state.retryCorrect++;
+  } else {
+    state.score += scoreFor(isCorrect, state.hintUsed);
+    document.getElementById("score").textContent = `점수 ${formatScore(state.score)}`;
+  }
   if (!isCorrect) state.wrongIndices.push(state.queue[state.position]);
   state.answers.push({ index: state.queue[state.position], choiceIndex, usedHint: state.hintUsed });
 
@@ -266,6 +270,16 @@ function updateTimer() {
   document.getElementById("timer").textContent = `남은 시간 ${state.remaining}초`;
 }
 
+function startRetry() {
+  state.queue = state.wrongIndices;
+  state.wrongIndices = [];
+  state.answers = [];
+  state.position = 0;
+  state.isRetry = true;
+  state.retryCorrect = 0;
+  showQuestion();
+}
+
 function nextQuestion() {
   if (state.position === state.queue.length - 1) {
     showResult();
@@ -295,17 +309,29 @@ function reviewList() {
 
 function showResult() {
   stopTimer();
-  const total = state.queue.length;
-  render(
+  const fullCount = QUESTIONS[state.categoryId].length;
+  const nodes = [
     el("h1", "결과"),
     el("p", `${categoryName(state.categoryId)}, ${MODE_NAMES[state.mode]} 모드`),
-    el("p", `${formatScore(state.score)} / ${total}`, "final-score"),
-    el("p", `맞힌 문항 ${total - state.wrongIndices.length}개`),
-    el("p", NOT_RECORDED, "notice"),
-    el("h2", "문항별 결과"),
-    reviewList(),
-    button("처음으로", showStart),
-  );
+  ];
+  if (state.isRetry) {
+    nodes.push(
+      el("p", `다시 풀기 ${state.queue.length}문제 중 ${state.retryCorrect}문제 정답`, "final-score"),
+      el("p", `처음 점수 ${formatScore(state.score)} / ${fullCount}`),
+    );
+  } else {
+    nodes.push(
+      el("p", `${formatScore(state.score)} / ${fullCount}`, "final-score"),
+      el("p", `맞힌 문항 ${fullCount - state.wrongIndices.length}개`),
+    );
+  }
+  if (state.mode === "practice") nodes.push(el("p", NOT_RECORDED, "notice"));
+  nodes.push(el("h2", "문항별 결과"), reviewList());
+  if (state.mode === "practice" && state.wrongIndices.length > 0) {
+    nodes.push(button("틀린 문제 다시 풀기", startRetry));
+  }
+  nodes.push(button("처음으로", showStart));
+  render(...nodes);
 }
 
 // ===== 자체 점검 (index.html?test) =====
