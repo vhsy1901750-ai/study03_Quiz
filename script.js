@@ -374,6 +374,43 @@ function buttonByText(text) {
   return [...app.querySelectorAll("button")].find((node) => node.textContent === text);
 }
 
+function playToResult(mode, categoryId, wrongCount = 0) {
+  startGame(mode, categoryId);
+  for (let n = 1; app.querySelector(".choice"); n++) {
+    const answer = currentQuestion().answer;
+    answerAndNext(n <= wrongCount ? (answer + 1) % 4 : answer);
+  }
+}
+
+function saveAs(name) {
+  app.querySelector(".save-form input").value = name;
+  app.querySelector(".save-form").requestSubmit();
+}
+
+function leaderboardRows() {
+  return [...app.querySelectorAll("table tr")].slice(1).map((row) => [...row.cells].map((cell) => cell.textContent));
+}
+
+function selectedLabels() {
+  return [...app.querySelectorAll(".selected")].map((node) => node.textContent).join(", ");
+}
+
+// 점검이 사용자의 순위표 기록을 바꾸지 않도록, 기존 기록을 치워 두었다가 끝나면 되돌린다.
+function withEmptyLeaderboards(run) {
+  const isLeaderboardKey = (key) => key.startsWith("quiz.leaderboard.");
+  const saved = {};
+  for (const key of Object.keys(localStorage).filter(isLeaderboardKey)) {
+    saved[key] = localStorage.getItem(key);
+    localStorage.removeItem(key);
+  }
+  try {
+    run();
+  } finally {
+    for (const key of Object.keys(localStorage).filter(isLeaderboardKey)) localStorage.removeItem(key);
+    for (const [key, value] of Object.entries(saved)) localStorage.setItem(key, value);
+  }
+}
+
 const SELF_CHECKS = [
   ["문항 데이터가 형식 규칙을 지킨다", () => {
     const errors = validateQuestions(CATEGORIES, QUESTIONS);
@@ -535,6 +572,65 @@ const SELF_CHECKS = [
     check(app.textContent.includes("처음 점수 7 / 10"), "처음 점수가 7 / 10이 아님");
     check(!buttonByText("틀린 문제 다시 풀기"), "다 맞혔는데 다시 풀기 버튼이 있음");
   }],
+  ["저장 폼은 스피드, 힌트 결과에만 있고 연습 결과에는 없다", () => withEmptyLeaderboards(() => {
+    for (const mode of ["practice", "speed", "hint"]) {
+      playToResult(mode, "history");
+      const hasForm = Boolean(app.querySelector(".save-form input")) && Boolean(buttonByText("순위표에 저장"));
+      check(hasForm === (mode !== "practice"), `${MODE_NAMES[mode]} 결과의 저장 폼 표시가 다름`);
+    }
+  })],
+  ["빈 이름과 공백 이름은 저장되지 않고, 이름은 10자까지만 받는다", () => withEmptyLeaderboards(() => {
+    playToResult("speed", "history");
+    for (const name of ["", "   "]) {
+      app.querySelector(".form-message").textContent = "";
+      saveAs(name);
+      check(app.querySelector("h1").textContent === "결과", `"${name}"으로 저장하자 순위표로 이동함`);
+      check(app.querySelector(".form-message").textContent === "이름을 입력해 주세요.", `"${name}"에 안내 문구가 없음`);
+    }
+    check(localStorage.getItem(leaderboardKey("speed", "history")) === null, "빈 이름이 저장됨");
+    check(app.querySelector(".save-form input").maxLength === 10, "입력칸이 10자로 제한되지 않음");
+  })],
+  ["저장하면 해당 모드와 카테고리 순위표로 이동하고 기록이 보인다", () => withEmptyLeaderboards(() => {
+    playToResult("hint", "science", 2);
+    saveAs("  점검  ");
+    check(app.querySelector("h1").textContent === "순위표", "순위표로 이동하지 않음");
+    check(selectedLabels() === "힌트, 과학", `선택된 표가 ${selectedLabels()}임`);
+    const rows = leaderboardRows();
+    check(rows.length === 1 && rows[0][1] === "점검" && rows[0][2] === "8", "표에 기록이 없거나 다름");
+    const stored = JSON.parse(localStorage.getItem(leaderboardKey("hint", "science")));
+    check(stored.length === 1 && stored[0].name === "점검" && stored[0].score === 8, "localStorage에 저장되지 않음");
+  })],
+  ["같은 표에 6번 저장하면 5개만 남고, 동점이면 먼저 저장한 기록이 위에 있다", () => withEmptyLeaderboards(() => {
+    for (const [name, wrongCount] of [["가", 1], ["나", 3], ["다", 0], ["라", 5], ["마", 2], ["바", 4]]) {
+      playToResult("speed", "culture", wrongCount);
+      saveAs(name);
+    }
+    let names = leaderboardRows().map((row) => row[1]).join(", ");
+    check(names === "다, 가, 마, 나, 바", `6번 저장한 뒤 순서가 ${names}임`);
+    playToResult("speed", "culture", 2);
+    saveAs("사");
+    names = leaderboardRows().map((row) => row[1]).join(", ");
+    check(names === "다, 가, 마, 사, 나", `동점 기록을 저장한 뒤 순서가 ${names}임`);
+  })],
+  ["다른 모드나 카테고리 표에는 기록이 섞이지 않고, 빈 표에는 안내가 나온다", () => withEmptyLeaderboards(() => {
+    playToResult("speed", "geography");
+    saveAs("점검");
+    const isEmpty = () => app.textContent.includes("아직 기록이 없습니다.") && !app.querySelector("table");
+    buttonByText("힌트").click();
+    check(isEmpty(), "힌트, 세계지리 표에 기록이 섞임");
+    buttonByText("스피드").click();
+    buttonByText("한국사").click();
+    check(isEmpty(), "스피드, 한국사 표에 기록이 섞임");
+    buttonByText("세계지리").click();
+    check(leaderboardRows().length === 1, "스피드, 세계지리 표에 기록이 보이지 않음");
+  })],
+  ["시작 화면의 [순위표] 버튼으로 들어가면 스피드, 한국사 표가 선택돼 있다", () => withEmptyLeaderboards(() => {
+    state.mode = "practice";
+    showStart();
+    buttonByText("순위표").click();
+    check(app.querySelector("h1").textContent === "순위표", "순위표로 이동하지 않음");
+    check(selectedLabels() === "스피드, 한국사", `선택된 표가 ${selectedLabels()}임`);
+  })],
 ];
 
 function runSelfCheck() {
