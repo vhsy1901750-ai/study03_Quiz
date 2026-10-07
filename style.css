@@ -99,11 +99,11 @@ button:disabled {
   background: #fff;
 }
 
-.review-correct {
+.review .review-correct {
   border-left-color: #2e7d32;
 }
 
-.review-wrong {
+.review .review-wrong {
   border-left-color: #c62828;
 }
 
