@@ -1821,6 +1821,7 @@ git commit -m "feat: index.html?test 자체 점검에 2단계 항목 3개 추가
 - `tests.html`이 "전부 통과"를 보여 준다. 여기에는 다음 테스트가 포함된다.
   - `addRecord`: 점수 높은 순으로 정렬하고, 동점이면 먼저 세운 기록이 위에 오며, 6번째 기록은 잘리고, 원래 배열은 바뀌지 않는다.
   - `leaderboardKey("speed", "history")`가 `"quiz.leaderboard.speed.history"`를 돌려준다.
+- `index.html?test`로 열면 콘솔 마지막 줄에 `자체 점검 결과: 통과 21, 실패 0`이 나온다(PRD 7.3, Task 16-1).
 - 아래 브라우저 확인 항목을 전부 통과하고, 1, 2단계 브라우저 확인 항목도 다시 통과한다.
 
 **브라우저에서 직접 확인할 항목** (PRD 7.2.3)
@@ -2184,11 +2185,51 @@ git commit -m "feat: 스피드, 힌트 결과를 순위표에 저장"
 
 ---
 
+### Task 16-1: 자체 점검 16~21 (3단계 구현 뒤 사용자 요청으로 추가)
+
+**Files:**
+- Modify: `script.js` (자체 점검 구역에 도우미 추가, `SELF_CHECKS` 끝에 6개 추가)
+- Modify: `PRD.md` (7.3에 3단계 점검 항목 추가)
+
+**Interfaces:**
+- Consumes: `startGame`, `saveForm`, `saveRecord`, `showLeaderboard`, `leaderboardKey`(Task 14~16), `answerAndNext`, `buttonByText`(Task 7-3, 12-1)
+- Produces:
+  - `playToResult(mode, categoryId, wrongCount = 0)` — 앞에서부터 `wrongCount`문항을 틀리고 결과 화면까지 푼다.
+  - `saveAs(name)` — 저장 폼에 이름을 넣고 제출한다.
+  - `leaderboardRows()`, `selectedLabels()` — 순위표의 행과 선택된 버튼 글자
+  - `withEmptyLeaderboards(run)` — 기존 `quiz.leaderboard.*` 기록을 치워 두고 `run()`을 부른 뒤, 점검이 만든 기록을 지우고 기존 기록을 되돌린다. 점검이 사용자의 순위표를 바꾸지 않게 한다.
+  - `SELF_CHECKS` 21개
+
+**점검 항목 6개**(PRD 7.3의 16~21). 모두 `withEmptyLeaderboards`로 감싼다.
+16. 연습, 스피드, 힌트로 한국사를 끝까지 풀고, 저장 폼이 스피드와 힌트 결과에만 있는지 본다.
+17. 스피드 결과에서 `""`, `"   "`로 저장하면 결과 화면에 머물고 "이름을 입력해 주세요."가 나온다. localStorage에 키가 생기지 않고, 입력칸의 `maxLength`가 10이다.
+18. 힌트, 과학에서 2문항을 틀린 뒤 `"  점검  "`으로 저장하면 순위표로 이동한다. 힌트와 과학이 선택돼 있고, 1위가 "점검", 8점이며, localStorage에도 같은 기록이 있다.
+19. 스피드, 예술과 문화에 점수 9, 7, 10, 5, 8, 6으로 6번 저장하면 "다, 가, 마, 나, 바"가 남는다. 8점("사")을 하나 더 저장하면 "다, 가, 마, 사, 나"가 된다.
+20. 스피드, 세계지리에 저장한 뒤 힌트, 세계지리와 스피드, 한국사 표는 비어 있고("아직 기록이 없습니다."), 스피드, 세계지리 표에만 기록이 1개 있다.
+21. 연습이 선택된 시작 화면에서 [순위표]를 누르면 스피드와 한국사가 선택돼 있다. 연습 모드로 끝나므로 점검이 끝난 뒤 시작 화면은 연습 모드다.
+
+- [x] **Step 1: 점검 6개 작성**
+- [x] **Step 2: 통과 확인** — `index.html?test`: `자체 점검 결과: 통과 21, 실패 0`(창 폭 1024px, 360px). 미리 넣어 둔 순위표 기록이 점검 뒤에도 그대로다.
+- [x] **Step 3: 실패를 잡는지 확인** — 콘솔에서 아래 고장을 하나씩 넣고 `runSelfCheck()`. Expected: 각각 해당 항목 하나만 실패하고 `통과 20, 실패 1`. 확인 뒤 새로고침한다.
+  - `addRecord`가 정렬과 5개 제한 없이 이어 붙이기만 함 → 19번
+  - `saveRecord`가 빈 이름을 "익명"으로 저장함 → 17번
+  - `leaderboardKey`가 모드를 구분하지 않음 → 20번
+  - `showLeaderboard`의 기본 모드가 힌트 → 21번
+  - 연습 결과에도 저장 폼을 붙임 → 16번
+- [x] **Step 4: 커밋**
+
+```bash
+git add script.js IMPL-PLAN.md PRD.md
+git commit -m "feat: 자체 점검 16~21"
+```
+
+---
+
 ### Task 17: 3단계 완료 확인
 
 **Files:** 없음(확인만 한다. 문제가 나오면 해당 Task로 돌아가 고친다)
 
-- [ ] **Step 1: 자동 검사** — `tests.html`을 연다. Expected: "전부 통과".
+- [ ] **Step 1: 자동 검사** — `tests.html`을 연다. Expected: "전부 통과". `index.html?test`를 연다. Expected: 콘솔 마지막 줄이 `자체 점검 결과: 통과 21, 실패 0`.
 - [ ] **Step 2: 3단계 브라우저 확인 항목** — 사용자가 전부 직접 해 보고 체크한다.
 - [ ] **Step 3: 1, 2단계 브라우저 확인 항목 다시 확인** — 특히 연습 결과 화면에 저장 폼이 없고, 스피드 타이머가 저장이나 순위표 이동 뒤에도 남아 있지 않은지 본다.
 - [ ] **Step 4: 마무리 확인** — 앱 파일이 `index.html`, `style.css`, `script.js`, `questions.js` 4개이고, 그 밖에는 개발용 `tests.html`과 문서(`PRD.md`, `IMPL-PLAN.md`)만 있는지 확인한다. 사용자에게 완료를 보고한다.
