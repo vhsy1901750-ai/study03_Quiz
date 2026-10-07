@@ -163,6 +163,30 @@
       assertEqual(validateQuestions(CATEGORIES, QUESTIONS), []);
     });
 
+    test("pickHintRemovals: random 값에 따라 남길 오답을 고른다", () => {
+      assertEqual(pickHintRemovals(0, () => 0), [2, 3]);
+      assertEqual(pickHintRemovals(0, () => 0.99), [1, 2]);
+      assertEqual(pickHintRemovals(2, () => 0.5), [0, 3]);
+    });
+
+    test("pickHintRemovals: 항상 서로 다른 오답 2개이고 정답은 없다", () => {
+      for (let answer = 0; answer < 4; answer++) {
+        for (const value of [0, 0.2, 0.34, 0.5, 0.67, 0.8, 0.999]) {
+          const removals = pickHintRemovals(answer, () => value);
+          assertEqual(removals.length, 2);
+          assertEqual(removals[0] !== removals[1], true);
+          assertEqual(removals.includes(answer), false);
+          assertEqual(removals.every((i) => Number.isInteger(i) && i >= 0 && i <= 3), true);
+        }
+      }
+    });
+
+    test("pickHintRemovals: random을 넘기지 않아도 동작한다", () => {
+      const removals = pickHintRemovals(1);
+      assertEqual(removals.length, 2);
+      assertEqual(removals.includes(1), false);
+    });
+
     // ===== 테스트 끝 =====
 
     document.getElementById("summary").textContent =

@@ -53,6 +53,12 @@ function validateQuestions(categories, questions) {
   return errors;
 }
 
+function pickHintRemovals(answer, random = Math.random) {
+  const wrong = [0, 1, 2, 3].filter((i) => i !== answer);
+  const keep = Math.floor(random() * wrong.length);
+  return wrong.filter((_, i) => i !== keep);
+}
+
 // ===== 상태 =====
 
 const MODE_NAMES = { practice: "연습", speed: "스피드", hint: "힌트" };
@@ -189,6 +195,11 @@ function showQuestion() {
     status.after(timer);
     startTimer();
   }
+  if (state.mode === "hint") {
+    const hint = button("힌트", useHint, "hint");
+    hint.id = "hint";
+    choices.after(hint);
+  }
 }
 
 function handleAnswer(choiceIndex) {
@@ -206,6 +217,8 @@ function handleAnswer(choiceIndex) {
     if (index === item.answer) node.classList.add("correct");
     else if (index === choiceIndex) node.classList.add("wrong");
   }
+  const hint = document.getElementById("hint");
+  if (hint) hint.disabled = true;
 
   let message = "오답입니다.";
   if (isCorrect) message = "정답입니다.";
@@ -217,6 +230,18 @@ function handleAnswer(choiceIndex) {
     sourceLine(item),
     button(isLast ? "결과 보기" : "다음", nextQuestion),
   );
+}
+
+function useHint() {
+  state.hintUsed = true;
+  const removals = pickHintRemovals(currentQuestion().answer);
+  for (const node of app.querySelectorAll(".choice")) {
+    if (removals.includes(Number(node.dataset.index))) {
+      node.disabled = true;
+      node.classList.add("removed");
+    }
+  }
+  document.getElementById("hint").disabled = true;
 }
 
 const TIME_LIMIT = 15;
@@ -260,6 +285,7 @@ function reviewList() {
     question.append(el("span", isCorrect ? "✔" : "✘", "review-mark"), ` ${answer.index + 1}. ${item.question}`);
     const myAnswer = answer.choiceIndex === null ? "시간 초과" : item.choices[answer.choiceIndex];
     let detail = `내 답: ${myAnswer}`;
+    if (isCorrect && answer.usedHint) detail += " (힌트 사용, 0.5점)";
     if (!isCorrect) detail += `, 정답: ${item.choices[item.answer]}`;
     row.append(question, el("p", detail, "review-detail"));
     list.append(row);

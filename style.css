@@ -142,3 +142,8 @@ button:disabled {
   font-size: 20px;
   font-weight: bold;
 }
+
+.choice.removed {
+  opacity: 0.3;
+  text-decoration: line-through;
+}
