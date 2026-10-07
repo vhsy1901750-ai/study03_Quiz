@@ -353,6 +353,10 @@ function answerAndNext(choiceIndex) {
   app.querySelector("#feedback button").click();
 }
 
+function buttonByText(text) {
+  return [...app.querySelectorAll("button")].find((node) => node.textContent === text);
+}
+
 const SELF_CHECKS = [
   ["문항 데이터가 형식 규칙을 지킨다", () => {
     const errors = validateQuestions(CATEGORIES, QUESTIONS);
@@ -455,6 +459,64 @@ const SELF_CHECKS = [
       check(count === 10, `${category.name} 문항이 ${count}개임`);
       check(page.scrollWidth <= page.clientWidth, `${category.name} 결과 화면에서 가로 스크롤이 생김`);
     }
+  }],
+  ["스피드: 15초에서 시작하고, 답하면 타이머가 멈추고, 시간 초과는 0점이다", () => {
+    startGame("speed", "history");
+    check(document.getElementById("timer").textContent === "남은 시간 15초", "남은 시간이 15초에서 시작하지 않음");
+    check(state.timerId !== null, "타이머가 돌고 있지 않음");
+    choiceButton(currentQuestion().answer).click();
+    check(state.timerId === null, "답한 뒤에도 타이머가 멈추지 않음");
+    app.querySelector("#feedback button").click();
+    check(document.getElementById("timer").textContent === "남은 시간 15초", "다음 문항에서 15초부터 다시 세지 않음");
+    // 15초를 기다리지 않고, 타이머가 0에서 부르는 handleAnswer(null)을 직접 부른다.
+    handleAnswer(null);
+    check(feedbackTexts()[0] === "시간 초과입니다.", "시간 초과 문구가 다름");
+    check(choiceButton(currentQuestion().answer).classList.contains("correct"), "정답 보기가 초록으로 표시되지 않음");
+    check(document.getElementById("score").textContent === "점수 1", "시간 초과에 점수가 바뀜");
+    check(state.timerId === null, "시간 초과 뒤에도 타이머가 멈추지 않음");
+  }],
+  ["힌트: 오답 2개가 잠기고, 힌트를 쓰고 맞히면 0.5점이며 결과 목록에 표시된다", () => {
+    startGame("hint", "history");
+    const answer = currentQuestion().answer;
+    document.getElementById("hint").click();
+    const removed = [...app.querySelectorAll(".choice.removed")];
+    check(removed.length === 2 && removed.every((node) => node.disabled), "잠긴 오답이 2개가 아님");
+    check(!choiceButton(answer).disabled, "정답 보기가 잠김");
+    check(document.getElementById("hint").disabled, "힌트 버튼이 꺼지지 않음");
+    choiceButton(answer).click();
+    check(document.getElementById("score").textContent === "점수 0.5", "점수가 0.5가 아님");
+    app.querySelector("#feedback button").click();
+    check(!document.getElementById("hint").disabled, "다음 문항에서 힌트를 쓸 수 없음");
+    while (app.querySelector(".choice")) answerAndNext(currentQuestion().answer);
+    check(app.querySelector(".final-score").textContent === "9.5 / 10", "점수 표시가 9.5 / 10이 아님");
+    const details = [...app.querySelectorAll(".review-detail")].map((p) => p.textContent);
+    check(details[0].endsWith("(힌트 사용, 0.5점)"), "1번에 힌트 사용 표시가 없음");
+    check(!details[1].includes("힌트 사용"), "힌트를 쓰지 않은 2번에 힌트 사용 표시가 있음");
+  }],
+  ["다시 풀기: 틀린 문항만 다시 나오고 처음 점수는 그대로이며, 스피드와 힌트 결과에는 버튼이 없다", () => {
+    for (const mode of ["speed", "hint"]) {
+      startGame(mode, "history");
+      answerAndNext((currentQuestion().answer + 1) % 4);
+      while (app.querySelector(".choice")) answerAndNext(currentQuestion().answer);
+      check(!buttonByText("틀린 문제 다시 풀기"), `${MODE_NAMES[mode]} 결과에 다시 풀기 버튼이 있음`);
+    }
+    const wrongAt = [2, 5, 9];
+    startGame("practice", "history");
+    for (let n = 1; app.querySelector(".choice"); n++) {
+      const answer = currentQuestion().answer;
+      answerAndNext(wrongAt.includes(n) ? (answer + 1) % 4 : answer);
+    }
+    buttonByText("틀린 문제 다시 풀기").click();
+    const seen = [];
+    while (app.querySelector(".choice")) {
+      check(app.querySelector(".status").textContent.includes("다시 풀기"), "다시 풀기 표시가 없음");
+      seen.push(state.queue[state.position] + 1);
+      answerAndNext(currentQuestion().answer);
+    }
+    check(seen.join() === wrongAt.join(), `다시 나온 문항이 ${seen.join(", ")}번임`);
+    check(app.querySelector(".final-score").textContent === "다시 풀기 3문제 중 3문제 정답", "다시 풀기 결과 문구가 다름");
+    check(app.textContent.includes("처음 점수 7 / 10"), "처음 점수가 7 / 10이 아님");
+    check(!buttonByText("틀린 문제 다시 풀기"), "다 맞혔는데 다시 풀기 버튼이 있음");
   }],
 ];
 
