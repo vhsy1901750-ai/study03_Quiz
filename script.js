@@ -232,4 +232,146 @@ function showResult() {
   );
 }
 
+// ===== 자체 점검 (index.html?test) =====
+
+function check(condition, reason) {
+  if (!condition) throw new Error(reason);
+}
+
+function choiceButton(index) {
+  return app.querySelector(`.choice[data-index="${index}"]`);
+}
+
+function feedbackTexts() {
+  return [...app.querySelectorAll("#feedback p")].map((p) => p.textContent);
+}
+
+function answerAndNext(choiceIndex) {
+  choiceButton(choiceIndex).click();
+  app.querySelector("#feedback button").click();
+}
+
+const SELF_CHECKS = [
+  ["문항 데이터가 형식 규칙을 지킨다", () => {
+    const errors = validateQuestions(CATEGORIES, QUESTIONS);
+    check(errors.length === 0, errors.join(" "));
+  }],
+  ["시작 화면에 카테고리 버튼 4개가 있다", () => {
+    showStart();
+    check(app.querySelectorAll(".categories button").length === 4, "카테고리 버튼이 4개가 아님");
+  }],
+  ["시작 화면에 \"순위표에 기록되지 않음\"이 있다", () => {
+    showStart();
+    check(app.textContent.includes(NOT_RECORDED), "안내 문구가 없음");
+  }],
+  ["카테고리를 누르면 \"1 / 10\"과 보기 4개가 나온다", () => {
+    showStart();
+    app.querySelector(".categories button").click();
+    check(app.querySelector(".status").textContent.includes("1 / 10"), "진행 표시가 1 / 10이 아님");
+    check(app.querySelectorAll(".choice").length === 4, "보기가 4개가 아님");
+  }],
+  ["정답을 고르면 초록 표시, \"정답입니다.\", 점수 1점 증가", () => {
+    startGame("practice", "history");
+    const answer = currentQuestion().answer;
+    choiceButton(answer).click();
+    check(choiceButton(answer).classList.contains("correct"), "정답 보기가 초록으로 표시되지 않음");
+    check(feedbackTexts()[0] === "정답입니다.", "정답 문구가 다름");
+    check(document.getElementById("score").textContent === "점수 1", "점수가 1이 아님");
+  }],
+  ["오답을 고르면 고른 보기는 빨강, 정답은 초록, \"오답입니다.\", 점수 그대로", () => {
+    startGame("practice", "history");
+    const answer = currentQuestion().answer;
+    const wrong = (answer + 1) % 4;
+    choiceButton(wrong).click();
+    check(choiceButton(wrong).classList.contains("wrong"), "고른 오답이 빨강으로 표시되지 않음");
+    check(choiceButton(answer).classList.contains("correct"), "정답 보기가 초록으로 표시되지 않음");
+    check(feedbackTexts()[0] === "오답입니다.", "오답 문구가 다름");
+    check(document.getElementById("score").textContent === "점수 0", "점수가 0이 아님");
+  }],
+  ["답한 뒤에는 보기 4개가 모두 잠긴다", () => {
+    startGame("practice", "history");
+    choiceButton(0).click();
+    check([...app.querySelectorAll(".choice")].every((node) => node.disabled), "잠기지 않은 보기가 있음");
+    choiceButton(1).click();
+    check(state.answers.length === 1 && feedbackTexts().length === 3, "잠긴 보기를 누르자 답이 바뀜");
+  }],
+  ["맞혔을 때와 틀렸을 때 모두 해설 한 줄과 새 탭 출처 링크가 나온다", () => {
+    for (const pickWrong of [false, true]) {
+      startGame("practice", "history");
+      const item = currentQuestion();
+      choiceButton(pickWrong ? (item.answer + 1) % 4 : item.answer).click();
+      const link = app.querySelector("#feedback .source a");
+      const when = pickWrong ? "틀렸을 때" : "맞혔을 때";
+      check(feedbackTexts()[1] === item.explanation, `${when} 해설이 없거나 다름`);
+      check(link && link.href === item.url && link.href.startsWith("https://"), `${when} 출처 링크가 없거나 주소가 다름`);
+      check(link.target === "_blank", `${when} 출처 링크가 새 탭으로 열리지 않음`);
+    }
+  }],
+  ["10번째 문항에서 버튼이 [결과 보기]로 바뀐다", () => {
+    startGame("practice", "history");
+    for (let n = 1; n <= 10; n++) {
+      choiceButton(currentQuestion().answer).click();
+      const label = app.querySelector("#feedback button").textContent;
+      check(label === (n === 10 ? "결과 보기" : "다음"), `${n}번째 문항의 버튼이 "${label}"임`);
+      app.querySelector("#feedback button").click();
+    }
+  }],
+  ["결과 화면에 \"x / 10\"과 \"순위표에 기록되지 않음\"이 나온다", () => {
+    startGame("practice", "history");
+    while (app.querySelector(".choice")) answerAndNext(currentQuestion().answer);
+    check(app.querySelector(".final-score").textContent === "10 / 10", "점수 표시가 10 / 10이 아님");
+    check(app.textContent.includes(NOT_RECORDED), "안내 문구가 없음");
+  }],
+  ["문항별 결과 목록의 ✔/✘와 정답 표시가 실제 답과 일치한다", () => {
+    const wrongAt = [2, 5, 9];
+    startGame("practice", "history");
+    for (let n = 1; app.querySelector(".choice"); n++) {
+      const answer = currentQuestion().answer;
+      answerAndNext(wrongAt.includes(n) ? (answer + 1) % 4 : answer);
+    }
+    const rows = [...app.querySelectorAll(".review li")];
+    check(rows.length === 10, `목록이 ${rows.length}개임`);
+    rows.forEach((row, i) => {
+      const wrong = wrongAt.includes(i + 1);
+      check(row.className === (wrong ? "review-wrong" : "review-correct"), `${i + 1}번 표시가 다름`);
+      check(row.textContent.includes(wrong ? "✘" : "✔"), `${i + 1}번 기호가 다름`);
+      check(row.textContent.includes("정답:") === wrong, `${i + 1}번 정답 표시가 다름`);
+    });
+    check(app.querySelector(".final-score").textContent === "7 / 10", "점수 표시가 7 / 10이 아님");
+  }],
+  ["카테고리 4개 모두 10문항씩 끝까지 진행되고 가로 스크롤이 없다", () => {
+    const page = document.documentElement;
+    for (const category of CATEGORIES) {
+      startGame("practice", category.id);
+      let count = 0;
+      while (app.querySelector(".choice")) {
+        count++;
+        choiceButton(currentQuestion().answer).click();
+        check(page.scrollWidth <= page.clientWidth, `${category.name} ${count}번에서 가로 스크롤이 생김`);
+        app.querySelector("#feedback button").click();
+      }
+      check(count === 10, `${category.name} 문항이 ${count}개임`);
+      check(page.scrollWidth <= page.clientWidth, `${category.name} 결과 화면에서 가로 스크롤이 생김`);
+    }
+  }],
+];
+
+function runSelfCheck() {
+  let passed = 0;
+  let failed = 0;
+  for (const [name, run] of SELF_CHECKS) {
+    try {
+      run();
+      passed++;
+      console.log(`통과: ${name}`);
+    } catch (error) {
+      failed++;
+      console.error(`실패: ${name} (${error.message})`);
+    }
+  }
+  showStart();
+  console.log(`자체 점검 결과: 통과 ${passed}, 실패 ${failed}`);
+}
+
 if (app) showStart();
+if (app && new URLSearchParams(location.search).has("test")) runSelfCheck();

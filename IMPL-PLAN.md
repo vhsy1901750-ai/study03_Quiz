@@ -49,6 +49,7 @@
 
 **완료 기준**
 - `tests.html`이 "전부 통과"를 보여 준다. 여기에는 `validateQuestions(CATEGORIES, QUESTIONS)`가 빈 배열을 돌려준다는 검사가 포함된다.
+- `index.html?test`로 열면 개발자 도구 콘솔 마지막 줄에 `자체 점검 결과: 통과 12, 실패 0`이 나온다(PRD 7.3).
 - 카테고리 4개의 문항을 각각 문항 규칙 3개로 검토했고, 사용자가 검토를 마쳤다.
 - 아래 브라우저 확인 항목을 전부 통과한다.
 
@@ -1208,13 +1209,57 @@ git commit -m "feat: 결과 화면에 문항별 결과 목록 추가"
 
 ---
 
+### Task 7-3: 자체 점검 `index.html?test` (1단계 진행 중 사용자 요청으로 추가)
+
+**Files:**
+- Modify: `script.js` (맨 아래에 "자체 점검" 구역 추가, 마지막 줄 다음에 한 줄 추가)
+
+**Interfaces:**
+- Consumes: 화면 함수 전부(`showStart`, `startGame`, `currentQuestion`, `validateQuestions` 등), `state`, `NOT_RECORDED`
+- Produces:
+  - `check(condition, reason)` — 조건이 거짓이면 `reason`을 메시지로 예외를 던진다.
+  - 도우미 `choiceButton(index)`, `feedbackTexts()`, `answerAndNext(choiceIndex)`
+  - `SELF_CHECKS: [이름, 점검 함수][]` — 2단계에서 항목을 이 배열 끝에 추가한다.
+  - `runSelfCheck()` — 항목마다 통과면 `console.log("통과: 이름")`, 실패면 `console.error("실패: 이름 (이유)")`를 찍고, 끝나면 시작 화면으로 돌아가 `console.log("자체 점검 결과: 통과 n, 실패 m")`을 찍는다.
+
+**점검 항목 12개**(사용자 확정): PRD 7.3의 목록과 같다. 각 항목은 실제 버튼을 `click()`으로 눌러 화면을 조작하고, DOM과 `state`를 확인한다.
+
+- [ ] **Step 1: 자체 점검 구역 작성**
+
+`script.js`의 `if (app) showStart();` 줄 바로 위에 "자체 점검" 구역(`check`, 도우미 3개, `SELF_CHECKS`, `runSelfCheck`)을 추가하고, 파일 마지막에 다음 줄을 추가한다. `if (app) showStart();` 줄은 그대로 둔다(2, 3단계 작업이 이 줄을 위치 기준으로 쓴다).
+
+```js
+if (app && new URLSearchParams(location.search).has("test")) runSelfCheck();
+```
+
+- [ ] **Step 2: 통과 확인**
+
+`index.html?test`를 열고 개발자 도구 콘솔을 본다. Expected: "통과: …" 12줄과 `자체 점검 결과: 통과 12, 실패 0`.
+
+- [ ] **Step 3: 실패를 잡는지 확인**
+
+콘솔에서 `scoreFor = () => 0; runSelfCheck();`를 실행한다. Expected: 점수와 관련된 항목(5, 10, 11번)이 `console.error`로 "실패: …"를 찍고, 합계가 `통과 9, 실패 3`이다. 확인 뒤 새로고침한다.
+
+- [ ] **Step 4: `?test` 없이 열면 점검하지 않는지 확인**
+
+`index.html`을 열면 콘솔에 점검 출력이 없다. `tests.html`은 여전히 "전부 통과"다.
+
+- [ ] **Step 5: 커밋**
+
+```bash
+git add script.js PRD.md IMPL-PLAN.md
+git commit -m "feat: index.html?test 자체 점검 12개 항목 추가"
+```
+
+---
+
 ### Task 8: 1단계 완료 확인
 
 **Files:** 없음(확인만 한다. 문제가 나오면 해당 Task로 돌아가 고친다)
 
 - [ ] **Step 1: 자동 검사**
 
-`tests.html`을 연다. Expected: "전부 통과".
+`tests.html`을 연다. Expected: "전부 통과". `index.html?test`를 연다. Expected: 콘솔 마지막 줄이 `자체 점검 결과: 통과 12, 실패 0`.
 
 - [ ] **Step 2: 브라우저 확인 항목**
 
