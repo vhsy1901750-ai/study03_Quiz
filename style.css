@@ -127,3 +127,13 @@ button:disabled {
   color: #555;
   font-size: 14px;
 }
+
+.modes {
+  display: flex;
+  gap: 8px;
+}
+
+.mode.selected {
+  background: #222;
+  color: #fff;
+}

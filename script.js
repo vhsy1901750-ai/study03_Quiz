@@ -57,6 +57,11 @@ function validateQuestions(categories, questions) {
 
 const MODE_NAMES = { practice: "연습", speed: "스피드", hint: "힌트" };
 const NOT_RECORDED = "순위표에 기록되지 않음";
+const MODE_DESCRIPTIONS = {
+  practice: "시간 제한과 힌트 없이 풉니다. 맞히면 1점입니다.",
+  speed: "문항마다 15초 안에 답합니다. 시간이 지나면 오답입니다.",
+  hint: "문항마다 힌트를 1번 써서 오답 2개를 지울 수 있습니다. 힌트를 쓰고 맞히면 0.5점입니다.",
+};
 
 const state = {
   mode: "practice",
@@ -114,17 +119,29 @@ function sourceLine(item) {
 }
 
 function showStart() {
+  const modeButtons = el("div", undefined, "modes");
+  for (const mode of ["practice", "speed", "hint"]) {
+    const className = mode === state.mode ? "mode selected" : "mode";
+    modeButtons.append(button(MODE_NAMES[mode], () => {
+      state.mode = mode;
+      showStart();
+    }, className));
+  }
+
   const categoryButtons = el("div", undefined, "categories");
   for (const category of CATEGORIES) {
-    categoryButtons.append(button(category.name, () => startGame("practice", category.id)));
+    categoryButtons.append(button(category.name, () => startGame(state.mode, category.id)));
   }
-  render(
+
+  const nodes = [
     el("h1", "상식 퀴즈"),
-    el("p", "연습 모드: 시간 제한과 힌트 없이 풉니다. 맞히면 1점입니다."),
-    el("p", NOT_RECORDED, "notice"),
-    el("h2", "카테고리를 고르세요"),
-    categoryButtons,
-  );
+    el("h2", "모드를 고르세요"),
+    modeButtons,
+    el("p", MODE_DESCRIPTIONS[state.mode]),
+  ];
+  if (state.mode === "practice") nodes.push(el("p", NOT_RECORDED, "notice"));
+  nodes.push(el("h2", "카테고리를 고르세요"), categoryButtons);
+  render(...nodes);
 }
 
 function startGame(mode, categoryId) {
