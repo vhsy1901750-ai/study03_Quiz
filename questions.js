@@ -89,6 +89,14 @@ const QUESTIONS = {
       source: "한국민족문화대백과사전, '대한민국 임시정부'",
       url: "https://encykorea.aks.ac.kr/Article/E0015017",
     },
+    {
+      question: "아버지 사도세자의 무덤을 수원으로 옮긴 뒤 수원 화성을 쌓게 한 조선의 왕은 누구인가?",
+      choices: ["영조", "숙종", "순조", "정조"],
+      answer: 3,
+      explanation: "수원 화성은 정조가 아버지 사도세자의 무덤을 수원으로 옮긴 뒤 쌓은 성곽이다.",
+      source: "한국민족문화대백과사전, '수원 화성'",
+      url: "https://encykorea.aks.ac.kr/Article/E0064671",
+    },
   ],
   geography: [
     {
@@ -170,6 +178,14 @@ const QUESTIONS = {
       explanation: "후지산은 높이 3,776미터로 일본에서 가장 높은 산이다.",
       source: "브리태니커, 'Mount Fuji'",
       url: "https://www.britannica.com/place/Mount-Fuji",
+    },
+    {
+      question: "튀르키예의 수도는 어디인가?",
+      choices: ["이스탄불", "앙카라", "이즈미르", "안탈리아"],
+      answer: 1,
+      explanation: "튀르키예의 수도는 이스탄불이 아니라 앙카라다.",
+      source: "브리태니커, 'Ankara'",
+      url: "https://www.britannica.com/place/Ankara",
     },
   ],
   science: [
@@ -253,6 +269,14 @@ const QUESTIONS = {
       source: "브리태니커 학생용, 'ozone'",
       url: "https://kids.britannica.com/students/article/ozone/609444",
     },
+    {
+      question: "원자 번호가 1인 원소는 무엇인가?",
+      choices: ["헬륨", "산소", "수소", "탄소"],
+      answer: 2,
+      explanation: "수소는 원자 번호가 1인 원소이며 원소 기호는 H다.",
+      source: "브리태니커, 'hydrogen'",
+      url: "https://www.britannica.com/science/hydrogen",
+    },
   ],
   culture: [
     {
@@ -334,6 +358,14 @@ const QUESTIONS = {
       explanation: "「별이 빛나는 밤」은 빈센트 반 고흐가 1889년 생레미의 요양원에서 그린 그림이다.",
       source: "뉴욕 현대 미술관(MoMA), 'Vincent van Gogh. The Starry Night'",
       url: "https://www.moma.org/collection/works/79802",
+    },
+    {
+      question: "봄, 여름, 가을, 겨울을 각각 음악으로 그린 바이올린 협주곡 4곡 「사계」를 작곡한 사람은 누구인가?",
+      choices: ["바흐", "헨델", "텔레만", "비발디"],
+      answer: 3,
+      explanation: "「사계」는 안토니오 비발디가 쓴 바이올린 협주곡 4곡으로, 1725년 출판된 협주곡집에 실렸다.",
+      source: "브리태니커, 'The Four Seasons'",
+      url: "https://www.britannica.com/topic/The-Four-Seasons-by-Vivaldi",
     },
   ],
 };
