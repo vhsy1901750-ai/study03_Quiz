@@ -106,10 +106,16 @@
       assertIncludes(validateQuestions(categories, questions), "b: 문항 배열이 없습니다.");
     });
 
-    test("validateQuestions: 문항이 10개가 아니면 오류", () => {
+    test("validateQuestions: 카테고리마다 문항 수가 다르면 오류", () => {
       const { categories, questions } = makeData();
       questions.a.pop();
-      assertIncludes(validateQuestions(categories, questions), "a: 문항이 10개가 아닙니다(9개).");
+      assertIncludes(validateQuestions(categories, questions), "카테고리마다 문항 수가 같지 않습니다(a 9개, b 10개, c 10개, d 10개).");
+    });
+
+    test("validateQuestions: 카테고리마다 문항 수가 같으면 10개가 아니어도 오류가 없다", () => {
+      const { categories, questions } = makeData();
+      for (const category of categories) questions[category.id].push(makeItem({}));
+      assertEqual(validateQuestions(categories, questions), []);
     });
 
     test("validateQuestions: 문제, 해설, 출처가 비어 있으면 오류", () => {
