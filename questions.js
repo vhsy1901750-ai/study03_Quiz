@@ -15,6 +15,7 @@ const QUESTIONS = {
       answer: 2,
       explanation: "광개토왕릉비는 414년 장수왕이 아버지 광개토왕의 업적을 기려 세운 비석이다.",
       source: "한국민족문화대백과사전, '광개토왕릉비'",
+      url: "https://encykorea.aks.ac.kr/Article/E0005058",
     },
     {
       question: "372년 전진에서 승려 순도가 불상과 불경을 가져와 고구려에 불교가 전해졌을 때의 왕은 누구인가?",
@@ -22,6 +23,7 @@ const QUESTIONS = {
       answer: 0,
       explanation: "고구려는 372년 소수림왕 때 전진의 순도를 통해 불교를 받아들였다.",
       source: "한국민족문화대백과사전, '불교'",
+      url: "https://encykorea.aks.ac.kr/Article/E0024921",
     },
     {
       question: "698년 고구려 유민과 말갈인을 이끌고 동모산에서 발해를 세운 인물은 누구인가?",
@@ -29,6 +31,7 @@ const QUESTIONS = {
       answer: 1,
       explanation: "발해는 698년 고구려 장수 출신 대조영이 동모산에서 세운 나라다.",
       source: "한국민족문화대백과사전, '발해'",
+      url: "https://encykorea.aks.ac.kr/Article/E0021626",
     },
     {
       question: "고려 고종 때 새긴 팔만대장경판을 보관하고 있는 절은 어디인가?",
@@ -36,6 +39,7 @@ const QUESTIONS = {
       answer: 3,
       explanation: "팔만대장경판은 합천 해인사의 장경판전에 보관되어 있다.",
       source: "한국민족문화대백과사전, '합천 해인사 장경판전'",
+      url: "https://encykorea.aks.ac.kr/Article/E0062725",
     },
     {
       question: "고려 광종이 958년 후주에서 귀화한 쌍기의 건의를 받아 처음 실시한 관리 선발 제도는 무엇인가?",
@@ -43,6 +47,7 @@ const QUESTIONS = {
       answer: 2,
       explanation: "광종은 958년 쌍기의 건의에 따라 과거제를 처음 실시했다.",
       source: "한국민족문화대백과사전, '과거'",
+      url: "https://encykorea.aks.ac.kr/Article/E0004562",
     },
     {
       question: "1443년 훈민정음을 창제한 조선의 왕은 누구인가?",
@@ -50,6 +55,7 @@ const QUESTIONS = {
       answer: 0,
       explanation: "세종은 1443년 훈민정음을 창제하고 1446년 책으로 펴내 반포했다.",
       source: "한국민족문화대백과사전, '훈민정음'",
+      url: "https://encykorea.aks.ac.kr/Article/E0065805",
     },
     {
       question: "1592년 한산도 앞바다에서 학익진을 펼쳐 일본 수군을 크게 무찌른 조선의 장수는 누구인가?",
@@ -57,6 +63,7 @@ const QUESTIONS = {
       answer: 3,
       explanation: "이순신은 1592년 한산도대첩에서 학익진으로 일본 수군의 주력을 격파했다.",
       source: "한국민족문화대백과사전, '한산도대첩'",
+      url: "https://encykorea.aks.ac.kr/Article/E0061676",
     },
     {
       question: "수령이 지켜야 할 도리와 지방 통치 방법을 담은 『목민심서』를 지은 조선 후기 실학자는 누구인가?",
@@ -64,6 +71,7 @@ const QUESTIONS = {
       answer: 1,
       explanation: "『목민심서』는 정약용이 강진 유배 중에 써서 1818년에 완성한 책이다.",
       source: "한국민족문화대백과사전, '목민심서'",
+      url: "https://encykorea.aks.ac.kr/Article/E0018631",
     },
     {
       question: "민족 대표 33인이 독립선언서를 발표하며 3·1 운동이 시작된 해는 언제인가?",
@@ -71,6 +79,7 @@ const QUESTIONS = {
       answer: 1,
       explanation: "3·1 운동은 1919년 3월 1일 독립선언서 발표와 함께 시작되었다.",
       source: "한국민족문화대백과사전, '3·1독립선언서'",
+      url: "https://encykorea.aks.ac.kr/Article/E0026764",
     },
     {
       question: "1919년 4월 11일 대한민국 임시 정부가 수립된 도시는 어디인가?",
@@ -78,6 +87,7 @@ const QUESTIONS = {
       answer: 2,
       explanation: "대한민국 임시 정부는 1919년 4월 11일 중국 상하이에서 수립되었다.",
       source: "한국민족문화대백과사전, '대한민국 임시정부'",
+      url: "https://encykorea.aks.ac.kr/Article/E0015017",
     },
   ],
   geography: [
@@ -87,6 +97,7 @@ const QUESTIONS = {
       answer: 2,
       explanation: "오스트레일리아의 수도는 1927년부터 공식 수도가 된 캔버라다.",
       source: "브리태니커, 'What is the capital of Australia?'",
+      url: "https://www.britannica.com/question/What-is-the-capital-of-Australia",
     },
     {
       question: "안데스산맥이 남북으로 길게 뻗어 있는 대륙은 어디인가?",
@@ -94,6 +105,7 @@ const QUESTIONS = {
       answer: 0,
       explanation: "안데스산맥은 남아메리카 대륙의 서쪽을 따라 남북으로 뻗어 있다.",
       source: "브리태니커, 'Andes Mountains'",
+      url: "https://www.britannica.com/place/Andes-Mountains",
     },
     {
       question: "(2024년 기준, 국토 면적 기준) 세계에서 가장 넓은 나라는 어디인가?",
@@ -101,6 +113,7 @@ const QUESTIONS = {
       answer: 1,
       explanation: "러시아는 약 1,708만 제곱킬로미터로 두 번째인 캐나다의 두 배 가까운 면적을 가진 나라다.",
       source: "브리태니커, 'List of the world’s largest countries and dependencies by area'",
+      url: "https://www.britannica.com/topic/list-of-the-total-areas-of-the-worlds-countries-dependencies-and-territories-2130540",
     },
     {
       question: "독일에서 시작해 여러 나라를 지나 흐르는 다뉴브강(도나우강)이 흘러드는 바다는 어디인가?",
@@ -108,6 +121,7 @@ const QUESTIONS = {
       answer: 3,
       explanation: "다뉴브강은 독일 남서부에서 시작해 9개 나라를 지나 흑해로 흘러든다.",
       source: "브리태니커, 'Danube River'",
+      url: "https://www.britannica.com/place/Danube-River",
     },
     {
       question: "에베레스트산이 속한 산맥은 어디인가?",
@@ -115,6 +129,7 @@ const QUESTIONS = {
       answer: 1,
       explanation: "에베레스트산은 네팔과 중국 티베트 자치구의 경계에 있는 히말라야산맥의 산이다.",
       source: "브리태니커, 'Mount Everest'",
+      url: "https://www.britannica.com/place/Mount-Everest",
     },
     {
       question: "남아메리카에 있는 브라질의 공용어는 무엇인가?",
@@ -122,6 +137,7 @@ const QUESTIONS = {
       answer: 3,
       explanation: "브라질은 16세기 포르투갈의 식민지가 된 영향으로 포르투갈어를 공용어로 쓴다.",
       source: "브리태니커, 'Portuguese language'",
+      url: "https://www.britannica.com/topic/Portuguese-language",
     },
     {
       question: "적도 부근에 나타나며 1년 내내 기온이 높고 비가 많이 내리는 기후는 무엇인가?",
@@ -129,6 +145,7 @@ const QUESTIONS = {
       answer: 0,
       explanation: "열대 우림 기후는 적도 부근에서 1년 내내 덥고 강수량이 많은 기후다.",
       source: "브리태니커, 'Wet equatorial climate'",
+      url: "https://www.britannica.com/science/wet-equatorial-climate",
     },
     {
       question: "피레네산맥을 경계로 국경을 맞대고 있는 두 나라는 어디인가?",
@@ -136,6 +153,7 @@ const QUESTIONS = {
       answer: 2,
       explanation: "피레네산맥의 능선은 대부분 프랑스와 스페인의 국경을 이룬다.",
       source: "브리태니커, 'Pyrenees'",
+      url: "https://www.britannica.com/place/Pyrenees",
     },
     {
       question: "이집트의 수에즈 운하가 연결하는 두 바다는 어디인가?",
@@ -143,6 +161,7 @@ const QUESTIONS = {
       answer: 0,
       explanation: "1869년에 완공된 수에즈 운하는 지중해와 홍해를 잇는다.",
       source: "브리태니커, 'Suez Canal'",
+      url: "https://www.britannica.com/topic/Suez-Canal",
     },
     {
       question: "(해발 고도 기준) 일본에서 가장 높은 산은 무엇인가?",
@@ -150,6 +169,7 @@ const QUESTIONS = {
       answer: 2,
       explanation: "후지산은 높이 3,776미터로 일본에서 가장 높은 산이다.",
       source: "브리태니커, 'Mount Fuji'",
+      url: "https://www.britannica.com/place/Mount-Fuji",
     },
   ],
   science: [
@@ -159,6 +179,7 @@ const QUESTIONS = {
       answer: 1,
       explanation: "1뉴턴은 질량 1킬로그램인 물체에 1m/s²의 가속도를 내는 힘이다.",
       source: "브리태니커, 'newton'",
+      url: "https://www.britannica.com/science/newton-unit-of-measurement",
     },
     {
       question: "외부에서 힘이 작용하지 않으면 정지한 물체는 계속 정지하고, 움직이는 물체는 같은 속도로 직선 운동을 계속한다는 법칙은 무엇인가?",
@@ -166,6 +187,7 @@ const QUESTIONS = {
       answer: 2,
       explanation: "뉴턴의 운동 제1법칙을 관성의 법칙이라고 한다.",
       source: "브리태니커, 'Newton’s laws of motion'",
+      url: "https://www.britannica.com/science/Newtons-laws-of-motion",
     },
     {
       question: "원소 기호 Fe가 나타내는 원소는 무엇인가?",
@@ -173,6 +195,7 @@ const QUESTIONS = {
       answer: 1,
       explanation: "Fe는 철을 뜻하는 라틴어 ferrum에서 온 원소 기호다.",
       source: "브리태니커, 'Why is the chemical symbol for iron Fe?'",
+      url: "https://www.britannica.com/science/Why-is-the-chemical-symbol-for-iron-Fe",
     },
     {
       question: "(건조한 공기의 부피 비율 기준) 지구 대기에 가장 많이 들어 있는 기체는 무엇인가?",
@@ -180,6 +203,7 @@ const QUESTIONS = {
       answer: 3,
       explanation: "건조한 공기의 약 78퍼센트는 질소이고, 산소는 약 21퍼센트다.",
       source: "브리태니커, 'nitrogen'",
+      url: "https://www.britannica.com/science/nitrogen",
     },
     {
       question: "25°C에서 순수한 물의 pH는 얼마인가?",
@@ -187,6 +211,7 @@ const QUESTIONS = {
       answer: 2,
       explanation: "25°C의 순수한 물은 중성이며 pH는 7이다.",
       source: "브리태니커 학생용, 'pH'",
+      url: "https://kids.britannica.com/students/article/pH/332990",
     },
     {
       question: "식물 세포에서 광합성이 일어나는 세포 소기관은 무엇인가?",
@@ -194,6 +219,7 @@ const QUESTIONS = {
       answer: 0,
       explanation: "엽록체는 엽록소로 빛에너지를 흡수해 광합성을 하는 세포 소기관이다.",
       source: "브리태니커, 'What is a chloroplast?'",
+      url: "https://www.britannica.com/question/What-is-a-chloroplast",
     },
     {
       question: "사람의 적혈구 속에서 산소를 온몸의 조직으로 운반하는 단백질은 무엇인가?",
@@ -201,6 +227,7 @@ const QUESTIONS = {
       answer: 3,
       explanation: "헤모글로빈은 철을 포함한 단백질로, 폐에서 산소와 결합해 조직으로 운반한다.",
       source: "브리태니커, 'Blood - Red blood cells (erythrocytes)'",
+      url: "https://www.britannica.com/science/blood-biochemistry/Red-blood-cells-erythrocytes",
     },
     {
       question: "1953년 DNA의 이중 나선 구조를 밝혀 발표한 두 과학자는 누구인가?",
@@ -208,6 +235,7 @@ const QUESTIONS = {
       answer: 0,
       explanation: "제임스 왓슨과 프랜시스 크릭은 1953년 DNA가 이중 나선 구조라는 모형을 발표했다.",
       source: "브리태니커, 'Double helix'",
+      url: "https://www.britannica.com/science/double-helix",
     },
     {
       question: "(질량 기준) 태양계에서 가장 큰 행성은 무엇인가?",
@@ -215,6 +243,7 @@ const QUESTIONS = {
       answer: 1,
       explanation: "목성의 질량은 지구의 약 318배로, 나머지 행성을 모두 합친 것보다 크다.",
       source: "브리태니커, 'Jupiter'",
+      url: "https://www.britannica.com/place/Jupiter-planet",
     },
     {
       question: "태양의 자외선을 흡수하는 오존층은 대기의 어느 층에 있는가?",
@@ -222,6 +251,7 @@ const QUESTIONS = {
       answer: 0,
       explanation: "오존층은 지상 약 15~35킬로미터 높이의 성층권에 있다.",
       source: "브리태니커 학생용, 'ozone'",
+      url: "https://kids.britannica.com/students/article/ozone/609444",
     },
   ],
   culture: [
@@ -230,7 +260,8 @@ const QUESTIONS = {
       choices: ["미켈란젤로", "라파엘로", "보티첼리", "레오나르도 다빈치"],
       answer: 3,
       explanation: "「모나리자」는 레오나르도 다빈치가 1503년 무렵부터 그린 유화 초상화다.",
-      source: "브리태니커, 'Leonardo da Vinci - The Mona Lisa and other works'",
+      source: "브리태니커, 'Leonardo da Vinci'",
+      url: "https://www.britannica.com/biography/Leonardo-da-Vinci",
     },
     {
       question: "마지막 악장에서 합창이 실러의 시 「환희의 송가」를 부르는 교향곡 9번 「합창」을 작곡한 사람은 누구인가?",
@@ -238,6 +269,7 @@ const QUESTIONS = {
       answer: 1,
       explanation: "교향곡 9번은 1824년 빈에서 초연된 베토벤의 마지막 교향곡이다.",
       source: "브리태니커, 'Symphony No. 9 in D Minor, Op. 125'",
+      url: "https://www.britannica.com/topic/Symphony-No-9-in-D-Minor",
     },
     {
       question: "1871년 이집트 카이로에서 초연된 오페라 「아이다」를 작곡한 사람은 누구인가?",
@@ -245,6 +277,7 @@ const QUESTIONS = {
       answer: 2,
       explanation: "「아이다」는 이탈리아 작곡가 주세페 베르디가 이집트의 의뢰를 받아 작곡한 오페라다.",
       source: "브리태니커, 'Giuseppe Verdi - The later middle years'",
+      url: "https://www.britannica.com/biography/Giuseppe-Verdi/The-later-middle-years",
     },
     {
       question: "덴마크 왕자가 아버지의 죽음에 복수하려는 이야기를 담은 비극 「햄릿」을 쓴 작가는 누구인가?",
@@ -252,6 +285,7 @@ const QUESTIONS = {
       answer: 0,
       explanation: "「햄릿」은 윌리엄 셰익스피어가 1599~1601년 무렵에 쓴 5막 비극이다.",
       source: "브리태니커, 'Hamlet'",
+      url: "https://www.britannica.com/topic/Hamlet-by-Shakespeare",
     },
     {
       question: "\"나 보기가 역겨워 가실 때에는\"으로 시작하는 시 「진달래꽃」을 쓴 시인은 누구인가?",
@@ -259,6 +293,7 @@ const QUESTIONS = {
       answer: 1,
       explanation: "「진달래꽃」은 김소월이 1922년 『개벽』에 처음 발표한 시다.",
       source: "한국민족문화대백과사전, '진달래꽃'",
+      url: "https://encykorea.aks.ac.kr/Article/E0054623",
     },
     {
       question: "스페인 바르셀로나의 사그라다 파밀리아 성당 건축을 1883년부터 맡아 이끈 건축가는 누구인가?",
@@ -266,6 +301,7 @@ const QUESTIONS = {
       answer: 2,
       explanation: "안토니 가우디는 1883년 사그라다 파밀리아의 책임 건축가가 되어 성당을 독창적인 건축물로 바꾸었다.",
       source: "브리태니커, 'Sagrada Família'",
+      url: "https://www.britannica.com/topic/Sagrada-Familia",
     },
     {
       question: "판소리에서 소리꾼 옆에 앉아 북으로 장단을 치고 추임새를 넣는 사람을 무엇이라고 하는가?",
@@ -273,6 +309,7 @@ const QUESTIONS = {
       answer: 0,
       explanation: "고수는 판소리에서 소리북으로 장단을 치며 소리판의 분위기를 이끄는 사람이다.",
       source: "한국민족문화대백과사전, '고수'",
+      url: "https://encykorea.aks.ac.kr/Article/E0003767",
     },
     {
       question: "제주도 유배 중이던 1844년 제자 이상적에게 그려 준 「세한도」의 작가는 누구인가?",
@@ -280,6 +317,7 @@ const QUESTIONS = {
       answer: 3,
       explanation: "「세한도」는 김정희가 제주 유배 중 제자 이상적의 의리에 답례로 그린 그림이다.",
       source: "한국민족문화대백과사전, '김정희 필 세한도'",
+      url: "https://encykorea.aks.ac.kr/Article/E0038956",
     },
     {
       question: "캄보디아의 세계유산 앙코르 유적을 대표하는 크메르 왕국의 사원은 무엇인가?",
@@ -287,6 +325,7 @@ const QUESTIONS = {
       answer: 0,
       explanation: "앙코르와트는 9~15세기 크메르 왕국의 수도 유적인 앙코르를 대표하는 사원이다.",
       source: "유네스코 세계유산센터, 'Angkor'",
+      url: "https://whc.unesco.org/en/list/668/",
     },
     {
       question: "1889년 프랑스 생레미의 요양원에 머물며 「별이 빛나는 밤」을 그린 화가는 누구인가?",
@@ -294,6 +333,7 @@ const QUESTIONS = {
       answer: 1,
       explanation: "「별이 빛나는 밤」은 빈센트 반 고흐가 1889년 생레미의 요양원에서 그린 그림이다.",
       source: "뉴욕 현대 미술관(MoMA), 'Vincent van Gogh. The Starry Night'",
+      url: "https://www.moma.org/collection/works/79802",
     },
   ],
 };

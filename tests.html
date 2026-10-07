@@ -74,6 +74,7 @@
         answer: 0,
         explanation: "해설이다.",
         source: "출처",
+        url: "https://example.com/page",
       }, overrides);
     }
 
@@ -145,6 +146,17 @@
       const errors = validateQuestions(categories, questions);
       assertIncludes(errors, "a 1번: answer가 0~3의 정수가 아닙니다.");
       assertIncludes(errors, "a 2번: answer가 0~3의 정수가 아닙니다.");
+    });
+
+    test("validateQuestions: url이 https://로 시작하지 않으면 오류", () => {
+      const { categories, questions } = makeData();
+      questions.a[0] = makeItem({ url: undefined });
+      questions.a[1] = makeItem({ url: "http://example.com" });
+      questions.a[2] = makeItem({ url: "" });
+      const errors = validateQuestions(categories, questions);
+      assertIncludes(errors, "a 1번: url이 https://로 시작하지 않습니다.");
+      assertIncludes(errors, "a 2번: url이 https://로 시작하지 않습니다.");
+      assertIncludes(errors, "a 3번: url이 https://로 시작하지 않습니다.");
     });
 
     test("실제 문항 데이터가 형식 규칙을 지킨다", () => {

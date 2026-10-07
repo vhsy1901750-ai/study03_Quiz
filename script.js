@@ -45,6 +45,9 @@ function validateQuestions(categories, questions) {
       if (!Number.isInteger(item.answer) || item.answer < 0 || item.answer > 3) {
         errors.push(`${where}: answer가 0~3의 정수가 아닙니다.`);
       }
+      if (typeof item.url !== "string" || !item.url.startsWith("https://")) {
+        errors.push(`${where}: url이 https://로 시작하지 않습니다.`);
+      }
     });
   }
   return errors;
@@ -97,6 +100,16 @@ function categoryName(id) {
 
 function currentQuestion() {
   return QUESTIONS[state.categoryId][state.queue[state.position]];
+}
+
+function sourceLine(item) {
+  const line = el("p", "출처: ", "source");
+  const link = el("a", item.source);
+  link.href = item.url;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  line.append(link);
+  return line;
 }
 
 function showStart() {
@@ -171,7 +184,7 @@ function handleAnswer(choiceIndex) {
   document.getElementById("feedback").append(
     el("p", message, isCorrect ? "result-correct" : "result-wrong"),
     el("p", item.explanation),
-    el("p", `출처: ${item.source}`, "source"),
+    sourceLine(item),
     button(isLast ? "결과 보기" : "다음", nextQuestion),
   );
 }

@@ -59,6 +59,7 @@
 - [ ] 정답을 고르면 초록색, "정답입니다.", 해설, 출처가 나오고 점수가 1 오른다.
 - [ ] 오답을 고르면 고른 보기는 빨강, 정답은 초록으로 표시되고 "오답입니다."가 나온다. 점수는 그대로다.
 - [ ] 답을 고른 뒤 다른 보기를 눌러도 아무 변화가 없다.
+- [ ] 맞혔을 때와 틀렸을 때 모두 해설 한 줄과 출처 링크가 나오고, 출처 링크를 누르면 새 탭에서 해당 페이지가 열린다. 퀴즈 화면은 그대로 남는다.
 - [ ] 10번째 문항에서 [결과 보기]를 누르면 "x / 10"과 "순위표에 기록되지 않음"이 나온다.
 - [ ] [처음으로]를 누른 뒤 나머지 카테고리 3개도 각각 10문제가 정상으로 나온다.
 
@@ -956,7 +957,7 @@ Expected: "전부 통과". 콘솔에 오류가 없다.
 
 - [ ] **Step 5: 브라우저에서 동작 확인**
 
-`index.html`을 열어 1단계의 "브라우저에서 직접 확인할 항목" 8개를 하나씩 해 본다.
+`index.html`을 열어 1단계의 "브라우저에서 직접 확인할 항목"을 하나씩 해 본다(출처 링크 항목은 Task 7-1에서 확인한다).
 Expected: 전부 통과.
 
 - [ ] **Step 6: 커밋**
@@ -964,6 +965,113 @@ Expected: 전부 통과.
 ```bash
 git add index.html style.css script.js
 git commit -m "feat: 연습 모드 화면과 점수 표시"
+```
+
+---
+
+### Task 7-1: 출처 링크 (1단계 진행 중 사용자 요청으로 추가)
+
+**Files:**
+- Modify: `tests.html` (`makeItem`에 `url` 추가, 테스트 1개 추가)
+- Modify: `script.js` (`validateQuestions`에 url 규칙 추가, `sourceLine` 추가, `handleAnswer`의 출처 줄 교체)
+- Modify: `questions.js` (40문항마다 `source` 다음 줄에 `url` 추가)
+
+**Interfaces:**
+- Consumes: `Item`(Task 2), `el`, `handleAnswer`(Task 7)
+- Produces:
+  - `Item`에 `url: string` 필드 추가. 사실을 확인한 페이지 주소이며 `https://`로 시작한다.
+  - 오류 메시지 `a 1번: url이 https://로 시작하지 않습니다.`
+  - `sourceLine(item): HTMLParagraphElement` — "출처: " 뒤에 출처 이름 링크(새 탭)를 단 문단
+
+- [ ] **Step 1: 실패하는 테스트 작성**
+
+`tests.html`의 `makeItem` 기본값에서 `source: "출처",` 다음 줄에 추가한다.
+
+```js
+        url: "https://example.com/page",
+```
+
+`"실제 문항 데이터가 형식 규칙을 지킨다"` 테스트 바로 위에 추가한다.
+
+```js
+    test("validateQuestions: url이 https://로 시작하지 않으면 오류", () => {
+      const { categories, questions } = makeData();
+      questions.a[0] = makeItem({ url: undefined });
+      questions.a[1] = makeItem({ url: "http://example.com" });
+      questions.a[2] = makeItem({ url: "" });
+      const errors = validateQuestions(categories, questions);
+      assertIncludes(errors, "a 1번: url이 https://로 시작하지 않습니다.");
+      assertIncludes(errors, "a 2번: url이 https://로 시작하지 않습니다.");
+      assertIncludes(errors, "a 3번: url이 https://로 시작하지 않습니다.");
+    });
+```
+
+- [ ] **Step 2: 테스트가 실패하는지 확인**
+
+`tests.html`을 새로고침한다(브라우저가 이전 `script.js`를 캐시에서 쓰지 않게 Ctrl+F5). Expected: 새 테스트가 "목록에 ... 없음"으로 실패한다.
+
+- [ ] **Step 3: 형식 규칙 구현**
+
+`validateQuestions`에서 answer 검사 `if` 블록 바로 아래에 추가한다.
+
+```js
+      if (typeof item.url !== "string" || !item.url.startsWith("https://")) {
+        errors.push(`${where}: url이 https://로 시작하지 않습니다.`);
+      }
+```
+
+Expected: 새 테스트는 통과하고, "실제 문항 데이터가 형식 규칙을 지킨다"가 40개의 url 오류로 실패한다.
+
+- [ ] **Step 4: 문항마다 url 추가**
+
+각 문항의 `source` 다음 줄에 그 사실을 확인한 페이지 주소를 넣는다. 넣기 전에 주소를 브라우저로 열어 해당 항목 페이지가 뜨는지 확인한다. 브리태니커, MoMA처럼 `curl`에는 403을 주는 사이트가 있으므로 확인은 브라우저로 한다. 주소가 다른 페이지로 넘어가면 넘어간 최종 주소를 쓰고, `source`의 항목 이름도 그 페이지에 맞춘다.
+
+```js
+      source: "한국민족문화대백과사전, '광개토왕릉비'",
+      url: "https://encykorea.aks.ac.kr/Article/E0005058",
+```
+
+Expected: `tests.html`이 "전부 통과".
+
+- [ ] **Step 5: 출처를 링크로 표시**
+
+`script.js`의 `currentQuestion` 함수 아래에 추가한다.
+
+```js
+function sourceLine(item) {
+  const line = el("p", "출처: ", "source");
+  const link = el("a", item.source);
+  link.href = item.url;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  line.append(link);
+  return line;
+}
+```
+
+`handleAnswer`에서 이 줄을
+
+```js
+    el("p", `출처: ${item.source}`, "source"),
+```
+
+아래로 바꾼다.
+
+```js
+    sourceLine(item),
+```
+
+`handleAnswer`는 정답, 오답(2단계부터는 시간 초과도)에서 모두 같은 해설 영역을 그리므로 모든 경우에 해설과 출처 링크가 나온다.
+
+- [ ] **Step 6: 브라우저 확인**
+
+`index.html`을 열어 정답과 오답을 하나씩 골라 본다. Expected: 두 경우 모두 해설 한 줄과 출처 링크가 나오고, 링크를 누르면 새 탭에서 출처 페이지가 열리며 퀴즈 화면은 그대로다.
+
+- [ ] **Step 7: 커밋**
+
+```bash
+git add tests.html script.js questions.js PRD.md IMPL-PLAN.md
+git commit -m "feat: 해설 아래 출처를 새 탭 링크로 표시"
 ```
 
 ---
@@ -978,7 +1086,7 @@ git commit -m "feat: 연습 모드 화면과 점수 표시"
 
 - [ ] **Step 2: 브라우저 확인 항목**
 
-1단계의 "브라우저에서 직접 확인할 항목" 8개를 사용자가 직접 해 보고 체크한다. 카테고리 4개 모두 끝까지 풀어 본다.
+1단계의 "브라우저에서 직접 확인할 항목" 9개를 사용자가 직접 해 보고 체크한다. 카테고리 4개 모두 끝까지 풀어 본다.
 
 - [ ] **Step 3: 문항 검토 완료 확인**
 
