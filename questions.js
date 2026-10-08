@@ -97,6 +97,14 @@ const QUESTIONS = {
       source: "한국민족문화대백과사전, '수원 화성'",
       url: "https://encykorea.aks.ac.kr/Article/E0064671",
     },
+    {
+      question: "918년 궁예를 몰아내고 고려를 세운 인물은 누구인가?",
+      choices: ["왕건", "견훤", "신검", "최승로"],
+      answer: 0,
+      explanation: "왕건은 918년 궁예를 몰아내고 왕위에 올라 나라 이름을 고려라고 했다.",
+      source: "한국민족문화대백과사전, '태조'",
+      url: "https://encykorea.aks.ac.kr/Article/E0059032",
+    },
   ],
   geography: [
     {
@@ -186,6 +194,14 @@ const QUESTIONS = {
       explanation: "튀르키예의 수도는 이스탄불이 아니라 앙카라다.",
       source: "브리태니커, 'Ankara'",
       url: "https://www.britannica.com/place/Ankara",
+    },
+    {
+      question: "아마존강이 흘러드는 대양은 어디인가?",
+      choices: ["태평양", "인도양", "북극해", "대서양"],
+      answer: 3,
+      explanation: "아마존강은 브라질을 지나 대서양으로 흘러든다.",
+      source: "브리태니커, 'Amazon River'",
+      url: "https://www.britannica.com/place/Amazon-River",
     },
   ],
   science: [
@@ -277,6 +293,14 @@ const QUESTIONS = {
       source: "브리태니커, 'hydrogen'",
       url: "https://www.britannica.com/science/hydrogen",
     },
+    {
+      question: "식탁에서 쓰는 소금의 주성분인 화합물은 무엇인가?",
+      choices: ["탄산 칼슘", "수산화 나트륨", "염화 칼륨", "염화 나트륨"],
+      answer: 3,
+      explanation: "식탁용 소금의 화학 이름은 염화 나트륨(NaCl)이다.",
+      source: "브리태니커, 'salt'",
+      url: "https://www.britannica.com/science/salt",
+    },
   ],
   culture: [
     {
@@ -366,6 +390,14 @@ const QUESTIONS = {
       explanation: "「사계」는 안토니오 비발디가 쓴 바이올린 협주곡 4곡으로, 1725년 출판된 협주곡집에 실렸다.",
       source: "브리태니커, 'The Four Seasons'",
       url: "https://www.britannica.com/topic/The-Four-Seasons-by-Vivaldi",
+    },
+    {
+      question: "1877년 처음 무대에 오른 발레 「백조의 호수」의 음악을 작곡한 사람은 누구인가?",
+      choices: ["라흐마니노프", "무소륵스키", "차이콥스키", "스트라빈스키"],
+      answer: 2,
+      explanation: "「백조의 호수」는 차이콥스키가 처음으로 작곡한 발레 음악으로, 1877년에 초연되었다.",
+      source: "브리태니커, 'Swan Lake'",
+      url: "https://www.britannica.com/topic/Swan-Lake-ballet-by-Tchaikovsky",
     },
   ],
 };
