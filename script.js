@@ -155,6 +155,7 @@ function showStart() {
   }
 
   const nodes = [
+    el("p", "학번 2601939 이름 박윤진", "student"),
     el("h1", "상식 퀴즈"),
     el("h2", "모드를 고르세요"),
     modeButtons,
