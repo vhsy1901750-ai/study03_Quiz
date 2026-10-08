@@ -143,6 +143,31 @@ button:disabled {
   font-weight: bold;
 }
 
+.timer.warning {
+  color: #c62828;
+}
+
+.mode-options {
+  display: grid;
+  gap: 8px;
+}
+
+.mode-option {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  text-align: left;
+}
+
+.mode-option span {
+  color: #555;
+  font-size: 14px;
+}
+
+.mode-option .notice {
+  color: #a15c00;
+}
+
 .choice.removed {
   opacity: 0.3;
   text-decoration: line-through;

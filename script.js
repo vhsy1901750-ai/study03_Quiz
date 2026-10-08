@@ -140,34 +140,35 @@ function sourceLine(item) {
 }
 
 function showStart() {
-  const modeButtons = el("div", undefined, "modes");
-  for (const mode of ["practice", "speed", "hint"]) {
-    const className = mode === state.mode ? "mode selected" : "mode";
-    modeButtons.append(button(MODE_NAMES[mode], () => {
-      state.mode = mode;
-      showStart();
-    }, className));
-  }
-
   const categoryButtons = el("div", undefined, "categories");
   for (const category of CATEGORIES) {
-    categoryButtons.append(button(category.name, () => startGame(state.mode, category.id)));
+    categoryButtons.append(button(category.name, () => showModeSelect(category.id)));
   }
 
-  const nodes = [
+  render(
     el("p", "학번 2601939 이름 박윤진", "student"),
     el("h1", "상식 퀴즈"),
-    el("h2", "모드를 고르세요"),
-    modeButtons,
-    el("p", MODE_DESCRIPTIONS[state.mode]),
-  ];
-  if (state.mode === "practice") nodes.push(el("p", NOT_RECORDED, "notice"));
-  nodes.push(
     el("h2", "카테고리를 고르세요"),
     categoryButtons,
     button("순위표", () => showLeaderboard()),
   );
-  render(...nodes);
+}
+
+function showModeSelect(categoryId) {
+  const modeButtons = el("div", undefined, "mode-options");
+  for (const mode of ["practice", "speed", "hint"]) {
+    const option = button(undefined, () => startGame(mode, categoryId), "mode-option");
+    option.dataset.mode = mode;
+    option.append(el("strong", MODE_NAMES[mode]), el("span", MODE_DESCRIPTIONS[mode]));
+    if (mode === "practice") option.append(el("span", NOT_RECORDED, "notice"));
+    modeButtons.append(option);
+  }
+
+  render(
+    el("h1", `${categoryName(categoryId)} · 모드를 고르세요`),
+    modeButtons,
+    button("뒤로", showStart),
+  );
 }
 
 function startGame(mode, categoryId) {
@@ -216,7 +217,7 @@ function showQuestion() {
     startTimer();
   }
   if (state.mode === "hint") {
-    const hint = button("힌트", useHint, "hint");
+    const hint = button("힌트 (오답 2개 지우기)", useHint, "hint");
     hint.id = "hint";
     choices.after(hint);
   }
@@ -265,7 +266,9 @@ function useHint() {
       node.classList.add("removed");
     }
   }
-  document.getElementById("hint").disabled = true;
+  const hint = document.getElementById("hint");
+  hint.textContent = "힌트 사용함";
+  hint.disabled = true;
 }
 
 const TIME_LIMIT = 15;
@@ -286,8 +289,12 @@ function stopTimer() {
   state.timerId = null;
 }
 
+const TIME_WARNING = 5;
+
 function updateTimer() {
-  document.getElementById("timer").textContent = `남은 시간 ${state.remaining}초`;
+  const timer = document.getElementById("timer");
+  timer.textContent = `남은 시간 ${state.remaining}초`;
+  timer.classList.toggle("warning", state.remaining <= TIME_WARNING);
 }
 
 function startRetry() {
@@ -319,7 +326,7 @@ function reviewList() {
     question.append(el("span", isCorrect ? "✔" : "✘", "review-mark"), ` ${answer.index + 1}. ${item.question}`);
     const myAnswer = answer.choiceIndex === null ? "시간 초과" : item.choices[answer.choiceIndex];
     let detail = `내 답: ${myAnswer}`;
-    if (isCorrect && answer.usedHint) detail += " (힌트 사용, 0.5점)";
+    if (isCorrect && answer.usedHint) detail += ", 정답 (힌트 0.5점)";
     if (!isCorrect) detail += `, 정답: ${item.choices[item.answer]}`;
     row.append(question, el("p", detail, "review-detail"));
     list.append(row);
@@ -349,6 +356,9 @@ function showResult() {
   nodes.push(el("h2", "문항별 결과"), reviewList());
   if (state.mode === "practice" && state.wrongIndices.length > 0) {
     nodes.push(button("틀린 문제 다시 풀기", startRetry));
+  }
+  if (state.mode === "practice") {
+    nodes.push(button("같은 모드 다시", () => startGame(state.mode, state.categoryId)));
   }
   if (state.mode !== "practice") nodes.push(saveForm());
   nodes.push(button("처음으로", showStart));
@@ -424,13 +434,25 @@ const SELF_CHECKS = [
     showStart();
     check(app.querySelectorAll(".categories button").length === 4, "카테고리 버튼이 4개가 아님");
   }],
-  ["시작 화면에 \"순위표에 기록되지 않음\"이 있다", () => {
+  ["카테고리를 누르면 모드 3개와 규칙이 나오고, \"순위표에 기록되지 않음\"은 연습에만 있으며, [뒤로]로 돌아간다", () => {
     showStart();
-    check(app.textContent.includes(NOT_RECORDED), "안내 문구가 없음");
+    check(!app.textContent.includes(NOT_RECORDED), "시작 화면에 연습 모드 문구가 남아 있음");
+    app.querySelector(".categories button").click();
+    check(app.querySelector("h1").textContent === `${CATEGORIES[0].name} · 모드를 고르세요`, "모드 선택 제목이 다름");
+    const options = [...app.querySelectorAll(".mode-option")];
+    check(options.map((node) => node.querySelector("strong").textContent).join() === "연습,스피드,힌트", "모드 3개가 나오지 않음");
+    options.forEach((node) => {
+      const mode = node.dataset.mode;
+      check(node.textContent.includes(MODE_DESCRIPTIONS[mode]), `${MODE_NAMES[mode]} 규칙이 없음`);
+      check(node.textContent.includes(NOT_RECORDED) === (mode === "practice"), `${MODE_NAMES[mode]}의 순위표 안내 표시가 다름`);
+    });
+    buttonByText("뒤로").click();
+    check(app.querySelectorAll(".categories button").length === 4, "[뒤로]로 시작 화면에 돌아가지 않음");
   }],
-  ["카테고리를 누르면 \"1 / 문항 수\"와 보기 4개가 나온다", () => {
+  ["카테고리와 연습 모드를 고르면 \"1 / 문항 수\"와 보기 4개가 나온다", () => {
     showStart();
     app.querySelector(".categories button").click();
+    app.querySelector('.mode-option[data-mode="practice"]').click();
     const total = QUESTIONS[CATEGORIES[0].id].length;
     check(app.querySelector(".status").textContent.includes(`1 / ${total}`), `진행 표시가 1 / ${total}이 아님`);
     check(app.querySelectorAll(".choice").length === 4, "보기가 4개가 아님");
@@ -526,6 +548,11 @@ const SELF_CHECKS = [
     startGame("speed", "history");
     check(document.getElementById("timer").textContent === "남은 시간 15초", "남은 시간이 15초에서 시작하지 않음");
     check(state.timerId !== null, "타이머가 돌고 있지 않음");
+    const timer = document.getElementById("timer");
+    check(!timer.classList.contains("warning"), "15초인데 빨간색임");
+    state.remaining = TIME_WARNING;
+    updateTimer();
+    check(timer.classList.contains("warning"), "5초 이하인데 빨간색이 아님");
     choiceButton(currentQuestion().answer).click();
     check(state.timerId === null, "답한 뒤에도 타이머가 멈추지 않음");
     app.querySelector("#feedback button").click();
@@ -540,11 +567,13 @@ const SELF_CHECKS = [
   ["힌트: 오답 2개가 잠기고, 힌트를 쓰고 맞히면 0.5점이며 결과 목록에 표시된다", () => {
     startGame("hint", "history");
     const answer = currentQuestion().answer;
+    check(document.getElementById("hint").textContent === "힌트 (오답 2개 지우기)", "힌트 버튼 문구가 다름");
     document.getElementById("hint").click();
     const removed = [...app.querySelectorAll(".choice.removed")];
     check(removed.length === 2 && removed.every((node) => node.disabled), "잠긴 오답이 2개가 아님");
     check(!choiceButton(answer).disabled, "정답 보기가 잠김");
     check(document.getElementById("hint").disabled, "힌트 버튼이 꺼지지 않음");
+    check(document.getElementById("hint").textContent === "힌트 사용함", "힌트 버튼이 \"힌트 사용함\"으로 바뀌지 않음");
     choiceButton(answer).click();
     check(document.getElementById("score").textContent === "점수 0.5", "점수가 0.5가 아님");
     app.querySelector("#feedback button").click();
@@ -553,8 +582,8 @@ const SELF_CHECKS = [
     const total = QUESTIONS.history.length;
     check(app.querySelector(".final-score").textContent === `${total - 0.5} / ${total}`, `점수 표시가 ${total - 0.5} / ${total}이 아님`);
     const details = [...app.querySelectorAll(".review-detail")].map((p) => p.textContent);
-    check(details[0].endsWith("(힌트 사용, 0.5점)"), "1번에 힌트 사용 표시가 없음");
-    check(!details[1].includes("힌트 사용"), "힌트를 쓰지 않은 2번에 힌트 사용 표시가 있음");
+    check(details[0].endsWith("정답 (힌트 0.5점)"), "1번에 힌트 표시가 없음");
+    check(!details[1].includes("힌트"), "힌트를 쓰지 않은 2번에 힌트 표시가 있음");
   }],
   ["다시 풀기: 틀린 문항만 다시 나오고 처음 점수는 그대로이며, 스피드와 힌트 결과에는 버튼이 없다", () => {
     for (const mode of ["speed", "hint"]) {
@@ -562,6 +591,7 @@ const SELF_CHECKS = [
       answerAndNext((currentQuestion().answer + 1) % 4);
       while (app.querySelector(".choice")) answerAndNext(currentQuestion().answer);
       check(!buttonByText("틀린 문제 다시 풀기"), `${MODE_NAMES[mode]} 결과에 다시 풀기 버튼이 있음`);
+      check(!buttonByText("같은 모드 다시"), `${MODE_NAMES[mode]} 결과에 같은 모드 다시 버튼이 있음`);
     }
     const wrongAt = [2, 5, 9];
     startGame("practice", "history");
@@ -581,6 +611,10 @@ const SELF_CHECKS = [
     const total = QUESTIONS.history.length;
     check(app.textContent.includes(`처음 점수 ${total - 3} / ${total}`), `처음 점수가 ${total - 3} / ${total}이 아님`);
     check(!buttonByText("틀린 문제 다시 풀기"), "다 맞혔는데 다시 풀기 버튼이 있음");
+    buttonByText("같은 모드 다시").click();
+    check(state.mode === "practice" && !state.isRetry, "같은 모드로 새 판이 시작되지 않음");
+    check(app.querySelector(".status").textContent.includes(`1 / ${total}`), "같은 모드 다시에서 1번부터 시작하지 않음");
+    check(document.getElementById("score").textContent === "점수 0", "같은 모드 다시에서 점수가 0이 아님");
   }],
   ["저장 폼은 스피드, 힌트 결과에만 있고 연습 결과에는 없다", () => withEmptyLeaderboards(() => {
     for (const mode of ["practice", "speed", "hint"]) {
